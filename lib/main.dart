@@ -69,11 +69,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void updateHeartRate(rawData) {
     Uint8List bytes = Uint8List.fromList(rawData);
-    
+
     // based on GATT standard
     var bpm = bytes[1];
     if (!((bytes[0] & 0x01) == 0)) {
-        bpm = (((bpm >> 8) & 0xFF) | ((bpm << 8) & 0xFF00));
+      bpm = (((bpm >> 8) & 0xFF) | ((bpm << 8) & 0xFF00));
     }
 
     var bpmLabel = "- bpm";
@@ -90,33 +90,47 @@ class _MyHomePageState extends State<MyHomePage> {
     var flag = rawData[0];
 
     // based on GATT standard
-    double temperature = twosComplimentOfNegativeMantissa(((rawData[3] << 16) | (rawData[2] << 8) | rawData[1]) & 16777215) / 100.0;
+    double temperature = twosComplimentOfNegativeMantissa(
+            ((rawData[3] << 16) | (rawData[2] << 8) | rawData[1]) & 16777215) /
+        100.0;
     if ((flag & 1) != 0) {
-      temperature = ((98.6 * temperature) - 32.0) * (5.0 / 9.0); // convert Fahrenheit to Celsius
+      temperature = ((98.6 * temperature) - 32.0) *
+          (5.0 / 9.0); // convert Fahrenheit to Celsius
     }
 
     setState(() {
-      _bodyTemperature = temperature.toString() + " °C"; // todo update body temp
+      _bodyTemperature =
+          temperature.toString() + " °C"; // todo update body temp
     });
   }
 
   void updatePPGRaw(rawData) {
     Uint8List bytes = Uint8List.fromList(rawData);
-    
+
     // corresponds to the raw reading of the PPG sensor from which the heart rate is computed
-    // 
-    // example plot https://e2e.ti.com/cfs-file/__key/communityserver-discussions-components-files/73/Screen-Shot-2019_2D00_01_2D00_24-at-19.30.24.png 
+    //
+    // example plot https://e2e.ti.com/cfs-file/__key/communityserver-discussions-components-files/73/Screen-Shot-2019_2D00_01_2D00_24-at-19.30.24.png
     // (image just for illustration purpose, obtained from a different sensor! Sensor value range differs.)
 
-    var ppg_red = bytes[0] | bytes[1] << 8 | bytes[2] << 16 | bytes[3] << 32; // raw green color value of PPG sensor
-    var ppg_green = bytes[4] | bytes[5] << 8 | bytes[6] << 16 | bytes[7] << 32; // raw red color value of PPG sensor
+    var ppgRed = bytes[0] |
+        bytes[1] << 8 |
+        bytes[2] << 16 |
+        bytes[3] << 32; // raw green color value of PPG sensor
+    var ppgGreen = bytes[4] |
+        bytes[5] << 8 |
+        bytes[6] << 16 |
+        bytes[7] << 32; // raw red color value of PPG sensor
 
-    var ppg_green_ambient = bytes[8] | bytes[9] << 8 | bytes[10] << 16 | bytes[11] << 32; // ambient light sensor (e.g., if sensor is not placed correctly)
-  
+    var ppgGreenAmbient = bytes[8] |
+        bytes[9] << 8 |
+        bytes[10] << 16 |
+        bytes[11] <<
+            32; // ambient light sensor (e.g., if sensor is not placed correctly)
+
     setState(() {
-      _ppgGreen = ppg_red.toString() + " (unknown unit)";
-      _ppgRed = ppg_green.toString() + " (unknown unit)";
-      _ppgAmbient = ppg_green_ambient.toString() + " (unknown unit)";
+      _ppgGreen = ppgRed.toString() + " (unknown unit)";
+      _ppgRed = ppgGreen.toString() + " (unknown unit)";
+      _ppgAmbient = ppgGreenAmbient.toString() + " (unknown unit)";
     });
   }
 
@@ -124,14 +138,14 @@ class _MyHomePageState extends State<MyHomePage> {
     Int8List bytes = Int8List.fromList(rawData);
 
     // description based on placing the earable into your right ear canal
-    int acc_x = bytes[14];
-    int acc_y = bytes[16];
-    int acc_z = bytes[18];
+    int accX = bytes[14];
+    int accY = bytes[16];
+    int accZ = bytes[18];
 
     setState(() {
-      _accX = acc_x.toString() + " (unknown unit)";
-      _accY = acc_y.toString() + " (unknown unit)";
-      _accZ = acc_z.toString() + " (unknown unit)";
+      _accX = accX.toString() + " (unknown unit)";
+      _accY = accY.toString() + " (unknown unit)";
+      _accZ = accZ.toString() + " (unknown unit)";
     });
   }
 
@@ -145,21 +159,22 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _connect() {
     FlutterBlue flutterBlue = FlutterBlue.instance;
-    
+
     // start scanning
-    flutterBlue.startScan(timeout: Duration(seconds: 4));
+    flutterBlue.startScan(timeout: const Duration(seconds: 4));
 
     // listen to scan results
     var subscription = flutterBlue.scanResults.listen((results) async {
-
       // do something with scan results
       for (ScanResult r in results) {
         if (r.device.name == "earconnect" && !earConnectFound) {
-          earConnectFound = true; // avoid multiple connects attempts to same device
+          earConnectFound =
+              true; // avoid multiple connects attempts to same device
 
           await flutterBlue.stopScan();
 
-          r.device.state.listen((state) { // listen for connection state changes
+          r.device.state.listen((state) {
+            // listen for connection state changes
             setState(() {
               _isConnected = state == BluetoothDeviceState.connected;
               _connectionStatus = (_isConnected) ? "Connected" : "Disconnected";
@@ -170,48 +185,71 @@ class _MyHomePageState extends State<MyHomePage> {
 
           var services = await r.device.discoverServices();
 
-          for (var service in services) { // iterate over services
-            for (var characteristic in service.characteristics) { // iterate over characterstics
+          for (var service in services) {
+            // iterate over services
+            for (var characteristic in service.characteristics) {
+              // iterate over characterstics
               switch (characteristic.uuid.toString()) {
                 case "0000a001-1212-efde-1523-785feabcd123":
                   print("Starting sampling ...");
-                  await characteristic.write([0x32, 0x31, 0x39, 0x32, 0x37, 0x34, 0x31, 0x30, 0x35, 0x39, 0x35, 0x35, 0x30, 0x32, 0x34, 0x35]);
-                  await Future.delayed(new Duration(seconds: 2)); // short delay before next bluetooth operation otherwise BLE crashes
-                  characteristic.value.listen((rawData) => {
-                    updateAccelerometer(rawData),
-                    updatePPGRaw(rawData)
+                  await characteristic.write([
+                    0x32,
+                    0x31,
+                    0x39,
+                    0x32,
+                    0x37,
+                    0x34,
+                    0x31,
+                    0x30,
+                    0x35,
+                    0x39,
+                    0x35,
+                    0x35,
+                    0x30,
+                    0x32,
+                    0x34,
+                    0x35
+                  ]);
+                  await Future.delayed(const Duration(
+                      seconds:
+                          2)); // short delay before next bluetooth operation otherwise BLE crashes
+                  characteristic.value.listen((rawData) {
+                    updateAccelerometer(rawData);
+                    updatePPGRaw(rawData);
                   });
                   await characteristic.setNotifyValue(true);
-                  await Future.delayed(new Duration(seconds: 2));
+                  await Future.delayed(const Duration(seconds: 2));
                   break;
 
                 case "00002a37-0000-1000-8000-00805f9b34fb":
-                  characteristic.value.listen((rawData) => {
-                    updateHeartRate(rawData)
+                  characteristic.value.listen((rawData) {
+                    updateHeartRate(rawData);
                   });
                   await characteristic.setNotifyValue(true);
-                  await Future.delayed(new Duration(seconds: 2)); // short delay before next bluetooth operation otherwise BLE crashes
+                  await Future.delayed(const Duration(
+                      seconds:
+                          2)); // short delay before next bluetooth operation otherwise BLE crashes
                   break;
 
                 case "00002a1c-0000-1000-8000-00805f9b34fb":
-                  characteristic.value.listen((rawData) => {
-                    updateBodyTemperature(rawData)
+                  characteristic.value.listen((rawData) {
+                    updateBodyTemperature(rawData);
                   });
                   await characteristic.setNotifyValue(true);
-                  await Future.delayed(new Duration(seconds: 2)); // short delay before next bluetooth operation otherwise BLE crashes
+                  await Future.delayed(const Duration(
+                      seconds:
+                          2)); // short delay before next bluetooth operation otherwise BLE crashes
                   break;
               }
-            };
-          };
+            }
+          }
         }
-        
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
@@ -227,101 +265,74 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Row(children: [
-              const Text(
-              'Status: ',
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Row(children: [
+                const Text(
+                  'Status: ',
+                ),
+                Text(_connectionStatus),
+              ]),
+              Row(children: [
+                const Text('Heart Rate: '),
+                Text(_heartRate),
+              ]),
+              Row(children: [
+                const Text('Body Temperature: '),
+                Text(_bodyTemperature),
+              ]),
+              Row(children: [
+                const Text('Accelerometer X: '),
+                Text(_accX),
+              ]),
+              Row(children: [
+                const Text('Accelerometer Y: '),
+                Text(_accY),
+              ]),
+              Row(children: [
+                const Text('Accelerometer Z: '),
+                Text(_accZ),
+              ]),
+              Row(children: [
+                const Text('PPG Raw Red: '),
+                Text(_ppgRed),
+              ]),
+              Row(children: [
+                const Text('PPG Raw Green: '),
+                Text(_ppgGreen),
+              ]),
+              Row(children: [
+                const Text('PPG Ambient: '),
+                Text(_ppgAmbient),
+              ]),
+              const Row(children: [
+                Text(
+                    '\nNote: You have to insert the earbud in your  \n ear in order to receive heart rate values.')
+              ]),
+              const Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      '\nNote: Accelerometer and PPG have unknown units. \nThey were reverse engineered. \nUse with caution!',
+                      softWrap: true, // Ensures text wraps properly
+                      textAlign: TextAlign
+                          .start, // Aligns the text to the start of the row
+                    ),
+                  ),
+                ],
               ),
-              Text(
-                '$_connectionStatus'
-              ),
-            ]),
-            Row(children: [
-              const Text(
-                'Heart Rate: '
-              ), 
-              Text(
-                '$_heartRate'
-              ),
-            ]),
-            Row(children: [
-              const Text(
-                'Body Temperature: '
-              ), 
-              Text(
-                '$_bodyTemperature'
-              ),
-            ]),
-            Row(children: [
-              const Text(
-                'Accelerometer X: '
-              ), 
-              Text(
-                '$_accX'
-              ),
-            ]),
-            Row(children: [
-              const Text(
-                'Accelerometer Y: '
-              ), 
-              Text(
-                '$_accY'
-              ),
-            ]),
-            Row(children: [
-              const Text(
-                'Accelerometer Z: '
-              ), 
-              Text(
-                '$_accZ'
-              ),
-            ]),
-            Row(children: [
-              const Text(
-                'PPG Raw Red: '
-              ), 
-              Text(
-                '$_ppgRed'
-              ),
-            ]),
-            Row(children: [
-              const Text(
-                'PPG Raw Green: '
-              ), 
-              Text(
-                '$_ppgGreen'
-              ),
-            ]),
-            Row(children: [
-              const Text(
-                'PPG Ambient: '
-              ), 
-              Text(
-                '$_ppgAmbient'
-              ),
-            ]),
-            Row(children: [
-              const Text(
-                '\nNote: You have to insert the earbud in your  \n ear in order to receive heart rate values.'
-              )
-            ]),
-            Row(children: [
-              const Text(
-                '\nNote: Accelerometer and PPG have unknown units. \n They were reverse engineered. \n Use with caution!'
-              )
-            ]),
-          ],
-        ),
+            ],
+          ),
         ),
       ),
-      floatingActionButton: Visibility(visible: !_isConnected, 
+      floatingActionButton: Visibility(
+        visible: !_isConnected,
         child: FloatingActionButton(
           onPressed: _connect,
           tooltip: 'Increment',
           child: const Icon(Icons.bluetooth_searching_sharp),
         ),
-       ),
+      ),
     );
   }
 }
