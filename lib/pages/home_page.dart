@@ -1,6 +1,6 @@
 import 'package:cosinuss/sensor/sensor_data.dart';
+import 'package:cosinuss/utils/bluetooth_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_blue/flutter_blue.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key, required this.title}) : super(key: key);
@@ -21,103 +21,33 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final SensorData sensorData = SensorData();
+  final SensorData _sensorData = SensorData();
+  late final BLEManager _bluetoothManager;
 
-  String _connectionStatus = "Disconnected";
+  @override
+  void initState() {
+    super.initState();
 
-  bool _isConnected = false;
-
-  bool earConnectFound = false;
+    _bluetoothManager = BLEManager(
+        updateConnectionStatus: (status) => setState(() {
+              _sensorData.updateConnectionStatus(status);
+            }),
+        updateHeartRate: (data) => setState(() {
+              _sensorData.updateHeartRate(data);
+            }),
+        updateBodyTemperature: (data) => setState(() {
+              _sensorData.updateBodyTemperature(data);
+            }),
+        updatePPGRaw: (data) => setState(() {
+              _sensorData.updatePPGRaw(data);
+            }),
+        updateAccelerometer: (data) => setState(() {
+              _sensorData.updateAccelerometer(data);
+            }));
+  }
 
   void _connect() {
-    FlutterBlue flutterBlue = FlutterBlue.instance;
-
-    // start scanning
-    flutterBlue.startScan(timeout: const Duration(seconds: 4));
-
-    // listen to scan results
-    var subscription = flutterBlue.scanResults.listen((results) async {
-      // do something with scan results
-      for (ScanResult r in results) {
-        if (r.device.name == "earconnect" && !earConnectFound) {
-          earConnectFound =
-              true; // avoid multiple connects attempts to same device
-
-          await flutterBlue.stopScan();
-
-          r.device.state.listen((state) {
-            // listen for connection state changes
-            setState(() {
-              _isConnected = state == BluetoothDeviceState.connected;
-              _connectionStatus = (_isConnected) ? "Connected" : "Disconnected";
-            });
-          });
-
-          await r.device.connect();
-
-          var services = await r.device.discoverServices();
-
-          for (var service in services) {
-            // iterate over services
-            for (var characteristic in service.characteristics) {
-              // iterate over characterstics
-              switch (characteristic.uuid.toString()) {
-                case "0000a001-1212-efde-1523-785feabcd123":
-                  print("Starting sampling ...");
-                  await characteristic.write([
-                    0x32,
-                    0x31,
-                    0x39,
-                    0x32,
-                    0x37,
-                    0x34,
-                    0x31,
-                    0x30,
-                    0x35,
-                    0x39,
-                    0x35,
-                    0x35,
-                    0x30,
-                    0x32,
-                    0x34,
-                    0x35
-                  ]);
-                  await Future.delayed(const Duration(
-                      seconds:
-                          2)); // short delay before next bluetooth operation otherwise BLE crashes
-                  characteristic.value.listen((rawData) {
-                    updateAccelerometer(rawData);
-                    updatePPGRaw(rawData);
-                  });
-                  await characteristic.setNotifyValue(true);
-                  await Future.delayed(const Duration(seconds: 2));
-                  break;
-
-                case "00002a37-0000-1000-8000-00805f9b34fb":
-                  characteristic.value.listen((rawData) {
-                    updateHeartRate(rawData);
-                  });
-                  await characteristic.setNotifyValue(true);
-                  await Future.delayed(const Duration(
-                      seconds:
-                          2)); // short delay before next bluetooth operation otherwise BLE crashes
-                  break;
-
-                case "00002a1c-0000-1000-8000-00805f9b34fb":
-                  characteristic.value.listen((rawData) {
-                    updateBodyTemperature(rawData);
-                  });
-                  await characteristic.setNotifyValue(true);
-                  await Future.delayed(const Duration(
-                      seconds:
-                          2)); // short delay before next bluetooth operation otherwise BLE crashes
-                  break;
-              }
-            }
-          }
-        }
-      }
-    });
+    _bluetoothManager.connect();
   }
 
   @override
@@ -143,39 +73,39 @@ class _HomePageState extends State<HomePage> {
                 const Text(
                   'Status: ',
                 ),
-                Text(_connectionStatus),
+                Text(_sensorData.connectionStatus),
               ]),
               Row(children: [
                 const Text('Heart Rate: '),
-                Text(sensorData.heartRate),
+                Text(_sensorData.heartRate),
               ]),
               Row(children: [
                 const Text('Body Temperature: '),
-                Text(sensorData.bodyTemperature),
+                Text(_sensorData.bodyTemperature),
               ]),
               Row(children: [
                 const Text('Accelerometer X: '),
-                Text(sensorData.accX),
+                Text(_sensorData.accX),
               ]),
               Row(children: [
                 const Text('Accelerometer Y: '),
-                Text(sensorData.accY),
+                Text(_sensorData.accY),
               ]),
               Row(children: [
                 const Text('Accelerometer Z: '),
-                Text(sensorData.accZ),
+                Text(_sensorData.accZ),
               ]),
               Row(children: [
                 const Text('PPG Raw Red: '),
-                Text(sensorData.ppgRed),
+                Text(_sensorData.ppgRed),
               ]),
               Row(children: [
                 const Text('PPG Raw Green: '),
-                Text(sensorData.ppgGreen),
+                Text(_sensorData.ppgGreen),
               ]),
               Row(children: [
                 const Text('PPG Ambient: '),
-                Text(sensorData.ppgAmbient),
+                Text(_sensorData.ppgAmbient),
               ]),
               const Row(children: [
                 Text(
@@ -198,7 +128,7 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       floatingActionButton: Visibility(
-        visible: !_isConnected,
+        visible: !_sensorData.isConnected,
         child: FloatingActionButton(
           onPressed: _connect,
           tooltip: 'Increment',

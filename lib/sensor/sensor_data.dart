@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 class SensorData {
+  bool _isConnected = false;
   String _connectionStatus = "Disconnected";
 
   String _heartRate = "- bpm";
@@ -32,9 +33,11 @@ class SensorData {
 
   // Getter for connection status
   String get connectionStatus => _connectionStatus;
+  bool get isConnected => _isConnected;
 
-  void updateConnectionStatus(String status) {
-    _connectionStatus = status;
+  void updateConnectionStatus(bool status) {
+    _isConnected = status;
+    _connectionStatus = (_isConnected) ? "Connected" : "Disconnected";
   }
 
   void updateHeartRate(rawData) {
