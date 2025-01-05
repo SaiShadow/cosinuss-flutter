@@ -1,5 +1,6 @@
+import 'package:cosinuss/sensor/sensor_graph.dart';
 import 'package:cosinuss/services/ble_manager.dart';
-import 'package:cosinuss/ui/sensor_data_card.dart';
+import 'package:cosinuss/sensor/sensor_data_card.dart';
 import 'package:flutter/material.dart';
 import 'dart:typed_data';
 
@@ -10,23 +11,11 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
+      title: 'Cosinuss° One - Demo',
+      theme: ThemeData(primarySwatch: Colors.blue),
       home: const MyHomePage(title: 'Cosinuss° One - Demo'),
     );
   }
@@ -34,15 +23,6 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
 
   final String title;
 
@@ -55,43 +35,49 @@ class _MyHomePageState extends State<MyHomePage> {
 
   String _connectionStatus = "Disconnected";
   String _heartRate = "- bpm";
-  String _bodyTemperature = '- °C';
+  String _bodyTemperature = "- °C";
 
   String _accX = "-";
   String _accY = "-";
   String _accZ = "-";
 
-  String _ppgGreen = "-";
-  String _ppgRed = "-";
-  String _ppgAmbient = "-";
-
   bool _isConnected = false;
+  bool _isRecording = false;
 
-  bool earConnectFound = false;
+  // Real-time data
+  final List<double> _heartRateData = [];
+  final List<double> _bodyTemperatureData = [];
+  final List<double> _accXData = [];
+  final List<double> _accYData = [];
+  final List<double> _accZData = [];
+
+  // Session data
+  final List<double> _sessionHeartRateData = [];
+  final List<double> _sessionBodyTemperatureData = [];
+  final List<double> _sessionAccXData = [];
+  final List<double> _sessionAccYData = [];
+  final List<double> _sessionAccZData = [];
 
   void updateHeartRate(rawData) {
     Uint8List bytes = Uint8List.fromList(rawData);
 
-    // based on GATT standard
     var bpm = bytes[1];
     if (!((bytes[0] & 0x01) == 0)) {
       bpm = (((bpm >> 8) & 0xFF) | ((bpm << 8) & 0xFF00));
     }
 
-    var bpmLabel = "- bpm";
-    if (bpm != 0) {
-      bpmLabel = bpm.toString() + " bpm";
-    }
-
     setState(() {
-      _heartRate = bpmLabel;
+      _heartRate = bpm != 0 ? "$bpm bpm" : "- bpm";
+
+      _heartRateData.add(bpm.toDouble());
+      if (_heartRateData.length > 50) _heartRateData.removeAt(0);
+
+      if (_isRecording) _sessionHeartRateData.add(bpm.toDouble());
     });
   }
 
   void updateBodyTemperature(rawData) {
     var flag = rawData[0];
-
-    // based on GATT standard
     double temperature = twosComplimentOfNegativeMantissa(
             ((rawData[3] << 16) | (rawData[2] << 8) | rawData[1]) & 16777215) /
         100.0;
@@ -101,53 +87,40 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     setState(() {
-      _bodyTemperature =
-          temperature.toString() + " °C"; // todo update body temp
-    });
-  }
+      _bodyTemperature = "$temperature °C";
 
-  void updatePPGRaw(rawData) {
-    Uint8List bytes = Uint8List.fromList(rawData);
+      _bodyTemperatureData.add(temperature);
+      if (_bodyTemperatureData.length > 50) _bodyTemperatureData.removeAt(0);
 
-    // corresponds to the raw reading of the PPG sensor from which the heart rate is computed
-    //
-    // example plot https://e2e.ti.com/cfs-file/__key/communityserver-discussions-components-files/73/Screen-Shot-2019_2D00_01_2D00_24-at-19.30.24.png
-    // (image just for illustration purpose, obtained from a different sensor! Sensor value range differs.)
-
-    var ppgRed = bytes[0] |
-        bytes[1] << 8 |
-        bytes[2] << 16 |
-        bytes[3] << 32; // raw green color value of PPG sensor
-    var ppgGreen = bytes[4] |
-        bytes[5] << 8 |
-        bytes[6] << 16 |
-        bytes[7] << 32; // raw red color value of PPG sensor
-
-    var ppgGreenAmbient = bytes[8] |
-        bytes[9] << 8 |
-        bytes[10] << 16 |
-        bytes[11] <<
-            32; // ambient light sensor (e.g., if sensor is not placed correctly)
-
-    setState(() {
-      _ppgGreen = ppgRed.toString() + " (unknown unit)";
-      _ppgRed = ppgGreen.toString() + " (unknown unit)";
-      _ppgAmbient = ppgGreenAmbient.toString() + " (unknown unit)";
+      if (_isRecording) _sessionBodyTemperatureData.add(temperature);
     });
   }
 
   void updateAccelerometer(rawData) {
     Int8List bytes = Int8List.fromList(rawData);
 
-    // description based on placing the earable into your right ear canal
     int accX = bytes[14];
     int accY = bytes[16];
     int accZ = bytes[18];
 
     setState(() {
-      _accX = accX.toString() + " (unknown unit)";
-      _accY = accY.toString() + " (unknown unit)";
-      _accZ = accZ.toString() + " (unknown unit)";
+      _accX = "$accX";
+      _accY = "$accY";
+      _accZ = "$accZ";
+
+      _accXData.add(accX.toDouble());
+      _accYData.add(accY.toDouble());
+      _accZData.add(accZ.toDouble());
+
+      if (_accXData.length > 50) _accXData.removeAt(0);
+      if (_accYData.length > 50) _accYData.removeAt(0);
+      if (_accZData.length > 50) _accZData.removeAt(0);
+
+      if (_isRecording) {
+        _sessionAccXData.add(accX.toDouble());
+        _sessionAccYData.add(accY.toDouble());
+        _sessionAccZData.add(accZ.toDouble());
+      }
     });
   }
 
@@ -155,7 +128,6 @@ class _MyHomePageState extends State<MyHomePage> {
     if ((4194304 & mantissa) != 0) {
       return (((mantissa ^ -1) & 16777215) + 1) * -1;
     }
-
     return mantissa;
   }
 
@@ -197,7 +169,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       2)); // short delay before next bluetooth operation otherwise BLE crashes
               characteristic.value.listen((rawData) {
                 updateAccelerometer(rawData);
-                updatePPGRaw(rawData);
               });
               await characteristic.setNotifyValue(true);
               await Future.delayed(const Duration(seconds: 2));
@@ -234,27 +205,30 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              SensorDataCard(
-                  title: "Connection Status", value: _connectionStatus),
-              SensorDataCard(title: "Heart Rate", value: _heartRate),
-              SensorDataCard(
-                  title: "Body Temperature", value: _bodyTemperature),
-              SensorDataCard(title: "Accelerometer X", value: _accX),
-              SensorDataCard(title: "Accelerometer Y", value: _accY),
-              SensorDataCard(title: "Accelerometer Z", value: _accZ),
-              const SizedBox(height: 20), // Add some spacing
-              ElevatedButton(
-                onPressed: _isConnected ? _disconnect : null,
-                child: const Text("Disconnect"),
-              ),
-            ],
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView(
+              children: [
+                SensorDataCard(
+                    title: "Connection Status", value: _connectionStatus),
+                SensorDataCard(title: "Heart Rate", value: _heartRate),
+                SensorDataCard(
+                    title: "Body Temperature", value: _bodyTemperature),
+                SensorDataCard(title: "Accelerometer X", value: _accX),
+                SensorDataCard(title: "Accelerometer Y", value: _accY),
+                SensorDataCard(title: "Accelerometer Z", value: _accZ),
+                const SizedBox(height: 16),
+                SensorGraph(data: _heartRateData, title: "Heart Rate"),
+                SensorGraph(
+                    data: _bodyTemperatureData, title: "Body Temperature"),
+                SensorGraph(data: _accXData, title: "Accelerometer X"),
+                SensorGraph(data: _accYData, title: "Accelerometer Y"),
+                SensorGraph(data: _accZData, title: "Accelerometer Z"),
+              ],
+            ),
           ),
-        ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _isConnected ? _disconnect : _connect,
@@ -271,7 +245,6 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _connectionStatus = "Disconnected";
       _isConnected = false;
-      earConnectFound = false;
     });
   }
 }
