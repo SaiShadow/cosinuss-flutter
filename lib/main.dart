@@ -1,6 +1,6 @@
+import 'package:cosinuss/services/ble_manager.dart';
+import 'package:cosinuss/ui/sensor_data_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_blue/flutter_blue.dart';
 import 'dart:typed_data';
 
 void main() {
@@ -51,6 +51,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final BLEManager _bleManager = BLEManager();
+
   String _connectionStatus = "Disconnected";
   String _heartRate = "- bpm";
   String _bodyTemperature = '- °C';
@@ -158,90 +160,68 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _connect() {
-    FlutterBlue flutterBlue = FlutterBlue.instance;
+    _bleManager.startScan((device) async {
+      setState(() {
+        _connectionStatus = "Connected to ${device.name}";
+        _isConnected = true;
+      });
 
-    // start scanning
-    flutterBlue.startScan(timeout: const Duration(seconds: 4));
+      // Keep service and characteristic logic here for now
+      var services = await device.discoverServices();
+      for (var service in services) {
+        for (var characteristic in service.characteristics) {
+          // iterate over characterstics
+          switch (characteristic.uuid.toString()) {
+            case "0000a001-1212-efde-1523-785feabcd123":
+              print("Starting sampling ...");
+              await characteristic.write([
+                0x32,
+                0x31,
+                0x39,
+                0x32,
+                0x37,
+                0x34,
+                0x31,
+                0x30,
+                0x35,
+                0x39,
+                0x35,
+                0x35,
+                0x30,
+                0x32,
+                0x34,
+                0x35
+              ]);
+              await Future.delayed(const Duration(
+                  seconds:
+                      2)); // short delay before next bluetooth operation otherwise BLE crashes
+              characteristic.value.listen((rawData) {
+                updateAccelerometer(rawData);
+                updatePPGRaw(rawData);
+              });
+              await characteristic.setNotifyValue(true);
+              await Future.delayed(const Duration(seconds: 2));
+              break;
 
-    // listen to scan results
-    var subscription = flutterBlue.scanResults.listen((results) async {
-      // do something with scan results
-      for (ScanResult r in results) {
-        if (r.device.name == "earconnect" && !earConnectFound) {
-          earConnectFound =
-              true; // avoid multiple connects attempts to same device
+            case "00002a37-0000-1000-8000-00805f9b34fb":
+              characteristic.value.listen((rawData) {
+                updateHeartRate(rawData);
+              });
+              await characteristic.setNotifyValue(true);
+              await Future.delayed(const Duration(
+                  seconds:
+                      2)); // short delay before next bluetooth operation otherwise BLE crashes
+              break;
 
-          await flutterBlue.stopScan();
-
-          r.device.state.listen((state) {
-            // listen for connection state changes
-            setState(() {
-              _isConnected = state == BluetoothDeviceState.connected;
-              _connectionStatus = (_isConnected) ? "Connected" : "Disconnected";
-            });
-          });
-
-          await r.device.connect();
-
-          var services = await r.device.discoverServices();
-
-          for (var service in services) {
-            // iterate over services
-            for (var characteristic in service.characteristics) {
-              // iterate over characterstics
-              switch (characteristic.uuid.toString()) {
-                case "0000a001-1212-efde-1523-785feabcd123":
-                  print("Starting sampling ...");
-                  await characteristic.write([
-                    0x32,
-                    0x31,
-                    0x39,
-                    0x32,
-                    0x37,
-                    0x34,
-                    0x31,
-                    0x30,
-                    0x35,
-                    0x39,
-                    0x35,
-                    0x35,
-                    0x30,
-                    0x32,
-                    0x34,
-                    0x35
-                  ]);
-                  await Future.delayed(const Duration(
-                      seconds:
-                          2)); // short delay before next bluetooth operation otherwise BLE crashes
-                  characteristic.value.listen((rawData) {
-                    updateAccelerometer(rawData);
-                    updatePPGRaw(rawData);
-                  });
-                  await characteristic.setNotifyValue(true);
-                  await Future.delayed(const Duration(seconds: 2));
-                  break;
-
-                case "00002a37-0000-1000-8000-00805f9b34fb":
-                  characteristic.value.listen((rawData) {
-                    updateHeartRate(rawData);
-                  });
-                  await characteristic.setNotifyValue(true);
-                  await Future.delayed(const Duration(
-                      seconds:
-                          2)); // short delay before next bluetooth operation otherwise BLE crashes
-                  break;
-
-                case "00002a1c-0000-1000-8000-00805f9b34fb":
-                  characteristic.value.listen((rawData) {
-                    updateBodyTemperature(rawData);
-                  });
-                  await characteristic.setNotifyValue(true);
-                  await Future.delayed(const Duration(
-                      seconds:
-                          2)); // short delay before next bluetooth operation otherwise BLE crashes
-                  break;
-              }
-            }
+            case "00002a1c-0000-1000-8000-00805f9b34fb":
+              characteristic.value.listen((rawData) {
+                updateBodyTemperature(rawData);
+              });
+              await characteristic.setNotifyValue(true);
+              await Future.delayed(const Duration(
+                  seconds:
+                      2)); // short delay before next bluetooth operation otherwise BLE crashes
+              break;
           }
         }
       }
@@ -250,89 +230,48 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Row(children: [
-                const Text(
-                  'Status: ',
-                ),
-                Text(_connectionStatus),
-              ]),
-              Row(children: [
-                const Text('Heart Rate: '),
-                Text(_heartRate),
-              ]),
-              Row(children: [
-                const Text('Body Temperature: '),
-                Text(_bodyTemperature),
-              ]),
-              Row(children: [
-                const Text('Accelerometer X: '),
-                Text(_accX),
-              ]),
-              Row(children: [
-                const Text('Accelerometer Y: '),
-                Text(_accY),
-              ]),
-              Row(children: [
-                const Text('Accelerometer Z: '),
-                Text(_accZ),
-              ]),
-              Row(children: [
-                const Text('PPG Raw Red: '),
-                Text(_ppgRed),
-              ]),
-              Row(children: [
-                const Text('PPG Raw Green: '),
-                Text(_ppgGreen),
-              ]),
-              Row(children: [
-                const Text('PPG Ambient: '),
-                Text(_ppgAmbient),
-              ]),
-              const Row(children: [
-                Text(
-                    '\nNote: You have to insert the earbud in your  \n ear in order to receive heart rate values.')
-              ]),
-              const Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      '\nNote: Accelerometer and PPG have unknown units. \nThey were reverse engineered. \nUse with caution!',
-                      softWrap: true, // Ensures text wraps properly
-                      textAlign: TextAlign
-                          .start, // Aligns the text to the start of the row
-                    ),
-                  ),
-                ],
+            children: [
+              SensorDataCard(
+                  title: "Connection Status", value: _connectionStatus),
+              SensorDataCard(title: "Heart Rate", value: _heartRate),
+              SensorDataCard(
+                  title: "Body Temperature", value: _bodyTemperature),
+              SensorDataCard(title: "Accelerometer X", value: _accX),
+              SensorDataCard(title: "Accelerometer Y", value: _accY),
+              SensorDataCard(title: "Accelerometer Z", value: _accZ),
+              const SizedBox(height: 20), // Add some spacing
+              ElevatedButton(
+                onPressed: _isConnected ? _disconnect : null,
+                child: const Text("Disconnect"),
               ),
             ],
           ),
         ),
       ),
-      floatingActionButton: Visibility(
-        visible: !_isConnected,
-        child: FloatingActionButton(
-          onPressed: _connect,
-          tooltip: 'Increment',
-          child: const Icon(Icons.bluetooth_searching_sharp),
-        ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _isConnected ? _disconnect : _connect,
+        backgroundColor: _isConnected ? Colors.red : Colors.green,
+        child: Icon(_isConnected
+            ? Icons.bluetooth_disabled
+            : Icons.bluetooth_searching),
       ),
     );
+  }
+
+  void _disconnect() async {
+    await _bleManager.disconnect();
+    setState(() {
+      _connectionStatus = "Disconnected";
+      _isConnected = false;
+      earConnectFound = false;
+    });
   }
 }
