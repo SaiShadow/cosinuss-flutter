@@ -12,37 +12,66 @@ class PomodoroTimerPage extends StatefulWidget {
 }
 
 class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
-  Duration _remainingTime = const Duration(minutes: 25);
+  static const int pomodoroTimerAmount = 25;
+
+  // TODO: Add short and long break amounts into calculation
+  static const int shortBreakAmount = 5;
+  static const int longBreakAmount = 15;
+
+  bool _isRunning = false;
+
+  late Duration _remainingTime;
   late final Stopwatch _stopwatch;
   late final Ticker _ticker;
-
   @override
   void initState() {
     super.initState();
+
+    _remainingTime = const Duration(minutes: pomodoroTimerAmount);
     _stopwatch = Stopwatch();
+
     _ticker = Ticker((Duration elapsed) {
       if (_stopwatch.isRunning) {
         setState(() {
-          _remainingTime = const Duration(minutes: 25) - elapsed;
+          _remainingTime =
+              const Duration(minutes: pomodoroTimerAmount) - elapsed;
         });
       }
       if (_remainingTime <= Duration.zero) {
         _stopwatch.stop();
         _ticker.stop();
+        setState(() {
+          _isRunning = false;
+        });
+        // You can add a notification or alert here.
       }
     });
   }
 
-  void _startTimer() {
-    _stopwatch.start();
-    _ticker.start();
+  void _toggleTimer() {
+    if (_isRunning) {
+      // Stop the timer
+      _stopwatch.stop();
+      _ticker.stop();
+      setState(() {
+        _isRunning = false;
+      });
+    } else {
+      // Start the timer
+      _stopwatch.start();
+      _ticker.start();
+      setState(() {
+        _isRunning = true;
+      });
+    }
   }
 
   void _resetTimer() {
     setState(() {
       _stopwatch.stop();
       _stopwatch.reset();
-      _remainingTime = const Duration(minutes: 25);
+      _remainingTime = const Duration(minutes: pomodoroTimerAmount);
+      _isRunning = false;
     });
   }
 
@@ -50,7 +79,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Timer'),
+        title: const Text('Pomodoro Timer'),
       ),
       body: Center(
         child: Padding(
@@ -91,26 +120,26 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                 ),
               ),
               const SizedBox(height: 40),
-              // Start and Reset Buttons
+              // Start/Stop and Reset Buttons
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
-                    onPressed: _startTimer,
+                    onPressed: _toggleTimer,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
+                      backgroundColor: _isRunning ? Colors.red : Colors.green,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 30, vertical: 10),
                     ),
-                    child: const Text(
-                      'Start',
-                      style: TextStyle(fontSize: 18),
+                    child: Text(
+                      _isRunning ? 'Stop' : 'Start',
+                      style: const TextStyle(fontSize: 18),
                     ),
                   ),
                   ElevatedButton(
                     onPressed: _resetTimer,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
+                      backgroundColor: Colors.blueGrey,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 30, vertical: 10),
                     ),
