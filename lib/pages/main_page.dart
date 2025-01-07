@@ -1,7 +1,7 @@
 import 'package:cosinuss/pages/home_page.dart';
 import 'package:cosinuss/pages/pomodoro_timer_page.dart';
 import 'package:cosinuss/pages/stopwatch_page.dart';
-import 'package:cosinuss/sensor/sensor_data.dart';
+import 'package:cosinuss/data/sensor_data.dart';
 import 'package:cosinuss/utils/bluetooth_service.dart';
 import 'package:flutter/material.dart';
 
