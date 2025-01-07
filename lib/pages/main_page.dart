@@ -32,6 +32,7 @@ class _MainPageState extends State<MainPage> {
   void initState() {
     super.initState();
 
+    // Initialize the Bluetooth manager
     _bluetoothManager = BLEManager(
         updateConnectionStatus: (status) => setState(() {
               _sensorData.updateConnectionStatus(status);
@@ -50,10 +51,6 @@ class _MainPageState extends State<MainPage> {
             }));
   }
 
-  void _connect() {
-    _bluetoothManager.connect();
-  }
-
   @override
   Widget build(BuildContext context) {
     // The Flutter framework has been optimized to make rerunning build methods
@@ -68,7 +65,11 @@ class _MainPageState extends State<MainPage> {
       body: IndexedStack(
         index: _currentPageIndex,
         children: [
-          HomePage(title: 'Cosinuss° One - Demo', sensorData: _sensorData),
+          HomePage(
+            title: widget.title,
+            sensorData: _sensorData,
+            bluetoothManager: _bluetoothManager,
+          ),
           PomodoroTimerPage(
             sensorData: _sensorData,
           ),
@@ -77,16 +78,6 @@ class _MainPageState extends State<MainPage> {
           ),
         ],
       ),
-      floatingActionButton: Visibility(
-        visible: !_sensorData.isConnected &&
-            _currentPageIndex == 0, // Button is only visible on the home tab.,
-        child: FloatingActionButton(
-          onPressed: _connect,
-          tooltip: 'Increment',
-          child: const Icon(Icons.bluetooth_searching_sharp),
-        ),
-      ),
-      // Inside the Scaffold widget, add this:
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentPageIndex,
         onTap: (index) {
