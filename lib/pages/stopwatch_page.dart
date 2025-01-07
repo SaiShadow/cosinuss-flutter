@@ -51,6 +51,7 @@ class _StopwatchPageState extends State<StopwatchPage> {
   }
 
   void _resetStopwatch() {
+    _stopStopwatch();
     setState(() {
       _stopwatch.reset();
       _elapsedTime = Duration.zero;
@@ -121,7 +122,7 @@ class _StopwatchPageState extends State<StopwatchPage> {
                     ),
                     child: Text(
                       _isRunning ? 'Stop' : 'Start',
-                      style: const TextStyle(fontSize: 18),
+                      style: const TextStyle(fontSize: 18, color: Colors.white),
                     ),
                   ),
                   ElevatedButton(
@@ -133,7 +134,7 @@ class _StopwatchPageState extends State<StopwatchPage> {
                     ),
                     child: const Text(
                       'Reset',
-                      style: TextStyle(fontSize: 18),
+                      style: TextStyle(fontSize: 18, color: Colors.white),
                     ),
                   ),
                 ],

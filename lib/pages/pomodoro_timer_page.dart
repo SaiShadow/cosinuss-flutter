@@ -4,6 +4,7 @@ import 'package:flutter/scheduler.dart';
 
 class PomodoroTimerPage extends StatefulWidget {
   final SensorData sensorData;
+
   const PomodoroTimerPage({Key? key, required this.sensorData})
       : super(key: key);
 
@@ -12,17 +13,15 @@ class PomodoroTimerPage extends StatefulWidget {
 }
 
 class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
-  static const int pomodoroTimerAmount = 25;
-
-  // TODO: Add short and long break amounts into calculation
+  static const int pomodoroTimerAmount = 1;
   static const int shortBreakAmount = 5;
   static const int longBreakAmount = 15;
 
   bool _isRunning = false;
-
   late Duration _remainingTime;
   late final Stopwatch _stopwatch;
   late final Ticker _ticker;
+
   @override
   void initState() {
     super.initState();
@@ -34,45 +33,57 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
       if (_stopwatch.isRunning) {
         setState(() {
           _remainingTime =
-              const Duration(minutes: pomodoroTimerAmount) - elapsed;
+              const Duration(minutes: pomodoroTimerAmount) - _stopwatch.elapsed;
+          if (_remainingTime <= Duration.zero) {
+            _completeTimer();
+          }
         });
-      }
-      if (_remainingTime <= Duration.zero) {
-        _stopwatch.stop();
-        _ticker.stop();
-        setState(() {
-          _isRunning = false;
-        });
-        // You can add a notification or alert here.
       }
     });
   }
 
-  void _toggleTimer() {
-    if (_isRunning) {
-      // Stop the timer
-      _stopwatch.stop();
-      _ticker.stop();
-      setState(() {
-        _isRunning = false;
-      });
-    } else {
-      // Start the timer
-      _stopwatch.start();
-      _ticker.start();
-      setState(() {
-        _isRunning = true;
-      });
-    }
+  void _stopTimer() {
+    _stopwatch.stop();
+    _ticker.stop();
+    setState(() {
+      _isRunning = false;
+    });
+  }
+
+  void _startTimer() {
+    _stopwatch.start();
+    _ticker.start();
+    setState(() {
+      _isRunning = true;
+    });
   }
 
   void _resetTimer() {
+    _stopTimer();
     setState(() {
       _stopwatch.stop();
       _stopwatch.reset();
       _remainingTime = const Duration(minutes: pomodoroTimerAmount);
       _isRunning = false;
     });
+  }
+
+  void _completeTimer() {
+    _stopwatch.stop();
+    _ticker.stop();
+    setState(() {
+      _remainingTime = Duration.zero;
+      _isRunning = false;
+    });
+    // Add any completion logic here, like showing a notification or moving to a break.
+    // Example:
+    // _startBreak(shortBreakAmount); // Placeholder for break logic
+  }
+
+  @override
+  void dispose() {
+    _ticker.dispose(); // Clean up the Ticker
+    super.dispose();
   }
 
   @override
@@ -112,9 +123,10 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                     Text(
                       _formatDuration(_remainingTime),
                       style: const TextStyle(
-                          fontSize: 40,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
                   ],
                 ),
@@ -125,7 +137,13 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
-                    onPressed: _toggleTimer,
+                    onPressed: () {
+                      if (_isRunning) {
+                        _stopTimer();
+                      } else {
+                        _startTimer();
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _isRunning ? Colors.red : Colors.green,
                       padding: const EdgeInsets.symmetric(
@@ -133,7 +151,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                     ),
                     child: Text(
                       _isRunning ? 'Stop' : 'Start',
-                      style: const TextStyle(fontSize: 18),
+                      style: const TextStyle(fontSize: 18, color: Colors.white),
                     ),
                   ),
                   ElevatedButton(
@@ -145,7 +163,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                     ),
                     child: const Text(
                       'Reset',
-                      style: TextStyle(fontSize: 18),
+                      style: TextStyle(fontSize: 18, color: Colors.white),
                     ),
                   ),
                 ],

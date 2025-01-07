@@ -22,7 +22,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: const Text("Home Page"),
       ),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
