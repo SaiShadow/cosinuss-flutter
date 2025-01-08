@@ -58,11 +58,13 @@ class _MainPageState extends State<MainPage> {
     // than having to individually change instances of widgets.
     return Scaffold(
       // Show the title only when the home page is selected.
-      appBar: AppBar(
-        title: _currentPageIndex == 0
-            ? Text(widget.title) // Show the title if _currentPageIndex is 0
-            : null, // Or set null for other cases
-      ),
+      // Conditionally include the AppBar only for the home page.
+      appBar: _currentPageIndex == 0
+          ? AppBar(
+              title:
+                  Text(widget.title), // Show the title only for the home page
+            )
+          : null, // No AppBar for other pagesx
       body: IndexedStack(
         index: _currentPageIndex,
         children: [
