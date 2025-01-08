@@ -3,6 +3,7 @@ import 'package:cosinuss/widgets/add_task_dialog.dart';
 import 'package:cosinuss/widgets/task_item.dart';
 import 'package:flutter/material.dart';
 
+/// Has the list of tasks and floating action button with the add task dialog.
 class TaskPage extends StatefulWidget {
   const TaskPage({Key? key}) : super(key: key);
 
@@ -46,7 +47,10 @@ class _TaskPageState extends State<TaskPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _buildList(),
+      body: Padding(
+        padding: const EdgeInsets.only(bottom: 70.0), // Space for FAB
+        child: _buildList(),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showDialog(
