@@ -57,10 +57,11 @@ class _MainPageState extends State<MainPage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
+      // Show the title only when the home page is selected.
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: _currentPageIndex == 0
+            ? Text(widget.title) // Show the title if _currentPageIndex is 0
+            : null, // Or set null for other cases
       ),
       body: IndexedStack(
         index: _currentPageIndex,
