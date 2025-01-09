@@ -23,10 +23,12 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   late final Stopwatch _stopwatch;
   late final Ticker _ticker;
 
+  // Add selectedTaskName to display the task name
+  String? selectedTaskName;
+
   @override
   void initState() {
     super.initState();
-
     _remainingTime = const Duration(minutes: pomodoroTimerAmount);
     _stopwatch = Stopwatch();
 
@@ -52,6 +54,16 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   }
 
   void _startTimer() {
+    if (selectedTaskName == null) {
+      // Prompt user to select a task
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a task before starting the timer.'),
+        ),
+      );
+      return;
+    }
+
     _stopwatch.start();
     _ticker.start();
     setState(() {
@@ -83,8 +95,14 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
 
   @override
   void dispose() {
-    _ticker.dispose(); // Clean up the Ticker
+    _ticker.dispose();
     super.dispose();
+  }
+
+  void setSelectedTask(String taskName) {
+    setState(() {
+      selectedTaskName = taskName;
+    });
   }
 
   @override
@@ -95,7 +113,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
       ),
       body: Column(
         children: [
-          // Stopwatch Section
+          // Timer Section
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
@@ -177,8 +195,10 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
           ),
           const Divider(),
           // Task Page Section
-          const Expanded(
-            child: TaskPage(),
+          Expanded(
+            child: TaskPage(
+              onSelectTask: setSelectedTask, // Callback to set selected task
+            ),
           ),
         ],
       ),

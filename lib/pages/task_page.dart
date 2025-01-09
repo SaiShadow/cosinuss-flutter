@@ -5,7 +5,10 @@ import 'package:flutter/material.dart';
 
 /// Has the list of tasks and floating action button with the add task dialog.
 class TaskPage extends StatefulWidget {
-  const TaskPage({Key? key}) : super(key: key);
+  final void Function(String taskName)?
+      onSelectTask; // Callback for task selection
+
+  const TaskPage({Key? key, this.onSelectTask}) : super(key: key);
 
   @override
   State<TaskPage> createState() => _TaskPageState();
@@ -76,10 +79,14 @@ class _TaskPageState extends State<TaskPage> {
     });
   }
 
-  void _selectTask(int id) {
+  void _selectTask(int taskId) {
     setState(() {
-      _selectedTaskId = id; // Set the selected task ID
+      _selectedTaskId = taskId;
     });
+
+    final selectedTask = _tasks.firstWhere((task) => task.id == taskId);
+    widget.onSelectTask
+        ?.call(selectedTask.name); // Notify about the selected task
   }
 
   @override
@@ -123,7 +130,9 @@ class _TaskPageState extends State<TaskPage> {
         final isSelected = task.id == _selectedTaskId;
 
         return GestureDetector(
-          onTap: () => _selectTask(task.id),
+          onTap: () {
+            _selectTask(task.id);
+          },
           child: TaskItem(
             task: task,
             isSelected: isSelected,
