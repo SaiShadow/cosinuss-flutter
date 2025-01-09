@@ -18,6 +18,9 @@ class _StopwatchPageState extends State<StopwatchPage> {
   Duration _elapsedTime = Duration.zero;
   bool _isRunning = false;
 
+  // Selected task name to display
+  String? selectedTaskName;
+
   @override
   void initState() {
     super.initState();
@@ -35,6 +38,12 @@ class _StopwatchPageState extends State<StopwatchPage> {
   void dispose() {
     _ticker.dispose();
     super.dispose();
+  }
+
+  void setSelectedTask(String? taskName) {
+    setState(() {
+      selectedTaskName = taskName;
+    });
   }
 
   void _startStopwatch() {
@@ -148,8 +157,10 @@ class _StopwatchPageState extends State<StopwatchPage> {
           ),
           const Divider(),
           // Task Page Section
-          const Expanded(
-            child: TaskPage(),
+          Expanded(
+            child: TaskPage(
+              onSelectTask: setSelectedTask,
+            ),
           ),
         ],
       ),

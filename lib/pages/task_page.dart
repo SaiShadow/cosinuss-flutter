@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 
 /// Has the list of tasks and floating action button with the add task dialog.
 class TaskPage extends StatefulWidget {
-  final void Function(String taskName)?
+  final void Function(String? taskName)
       onSelectTask; // Callback for task selection
 
-  const TaskPage({Key? key, this.onSelectTask}) : super(key: key);
+  const TaskPage({Key? key, required this.onSelectTask}) : super(key: key);
 
   @override
   State<TaskPage> createState() => _TaskPageState();
@@ -57,6 +57,7 @@ class _TaskPageState extends State<TaskPage> {
       // Reset selection if the selected task is removed
       if (_selectedTaskId == id) {
         _selectedTaskId = _tasks.isNotEmpty ? _tasks.first.id : null;
+        notifyTaskSelectionChange();
       }
     });
   }
@@ -79,14 +80,21 @@ class _TaskPageState extends State<TaskPage> {
     });
   }
 
+  void notifyTaskSelectionChange() {
+    if (_selectedTaskId == null) {
+      widget.onSelectTask.call(null); // Pass null when no task is selected
+      return;
+    }
+    final selectedTask =
+        _tasks.firstWhere((task) => task.id == _selectedTaskId);
+    widget.onSelectTask.call(selectedTask.name); // Pass the task name
+  }
+
   void _selectTask(int taskId) {
     setState(() {
       _selectedTaskId = taskId;
     });
-
-    final selectedTask = _tasks.firstWhere((task) => task.id == taskId);
-    widget.onSelectTask
-        ?.call(selectedTask.name); // Notify about the selected task
+    notifyTaskSelectionChange();
   }
 
   @override

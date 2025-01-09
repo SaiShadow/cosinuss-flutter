@@ -16,15 +16,18 @@ class PomodoroTimerPage extends StatefulWidget {
 class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   static const int pomodoroTimerAmount = 25;
   static const int shortBreakAmount = 5;
-  static const int longBreakAmount = 15;
+  // static const int longBreakAmount = 15;
 
   bool _isRunning = false;
   late Duration _remainingTime;
   late final Stopwatch _stopwatch;
   late final Ticker _ticker;
 
-  // Add selectedTaskName to display the task name
+  // Selected task name to display
   String? selectedTaskName;
+
+  // Progress value for the progress bar
+  double _progress = 0.0;
 
   @override
   void initState() {
@@ -37,6 +40,9 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
         setState(() {
           _remainingTime =
               const Duration(minutes: pomodoroTimerAmount) - _stopwatch.elapsed;
+          _progress =
+              1 - (_remainingTime.inSeconds / (pomodoroTimerAmount * 60));
+
           if (_remainingTime <= Duration.zero) {
             _completeTimer();
           }
@@ -63,9 +69,9 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
       );
       return;
     }
-
     _stopwatch.start();
     _ticker.start();
+
     setState(() {
       _isRunning = true;
     });
@@ -99,7 +105,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     super.dispose();
   }
 
-  void setSelectedTask(String taskName) {
+  void setSelectedTask(String? taskName) {
     setState(() {
       selectedTaskName = taskName;
     });
@@ -111,95 +117,164 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
       appBar: AppBar(
         title: const Text('Pomodoro Timer'),
       ),
-      body: Column(
+      body: Stack(
         children: [
-          // Timer Section
-          Padding(
-            padding: const EdgeInsets.all(20.0),
+          // Main UI (Task List and Timer)
+          Visibility(
+            visible: !_isRunning, // Only visible when the timer is not running
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Timer Box
-                Container(
-                  width: double.infinity,
+                // Timer Section (Unchanged)
+                Padding(
                   padding: const EdgeInsets.all(20.0),
-                  decoration: BoxDecoration(
-                    color: Colors.blueAccent,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
-                        'Remaining Time',
-                        style: TextStyle(fontSize: 20, color: Colors.white),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        _formatDuration(_remainingTime),
-                        style: const TextStyle(
-                          fontSize: 40,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                      // Timer Box (Unchanged)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20.0),
+                        decoration: BoxDecoration(
+                          color: Colors.blueAccent,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
+                        child: Column(
+                          children: [
+                            const Text(
+                              'Remaining Time',
+                              style:
+                                  TextStyle(fontSize: 20, color: Colors.white),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              _formatDuration(_remainingTime),
+                              style: const TextStyle(
+                                fontSize: 40,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 40),
+
+                      // Buttons (Unchanged)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              if (_isRunning) {
+                                _stopTimer();
+                              } else {
+                                _startTimer();
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  _isRunning ? Colors.red : Colors.green,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 30, vertical: 10),
+                            ),
+                            child: Text(
+                              _isRunning ? 'Stop' : 'Start',
+                              style: const TextStyle(
+                                  fontSize: 18, color: Colors.white),
+                            ),
+                          ),
+                          ElevatedButton(
+                            onPressed: _resetTimer,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blueGrey,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 30, vertical: 10),
+                            ),
+                            child: const Text(
+                              'Reset',
+                              style:
+                                  TextStyle(fontSize: 18, color: Colors.white),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 40),
-                // Start/Stop and Reset Buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        if (_isRunning) {
-                          _stopTimer();
-                        } else {
-                          _startTimer();
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _isRunning ? Colors.red : Colors.green,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 30, vertical: 10),
-                      ),
-                      child: Text(
-                        _isRunning ? 'Stop' : 'Start',
-                        style:
-                            const TextStyle(fontSize: 18, color: Colors.white),
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: _resetTimer,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueGrey,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 30, vertical: 10),
-                      ),
-                      child: const Text(
-                        'Reset',
-                        style: TextStyle(fontSize: 18, color: Colors.white),
-                      ),
-                    ),
-                  ],
+                const Divider(),
+
+                // Task Page
+                Expanded(
+                  child: TaskPage(
+                    onSelectTask: setSelectedTask,
+                  ),
                 ),
               ],
             ),
           ),
-          const Divider(),
-          // Task Page Section
-          Expanded(
-            child: TaskPage(
-              onSelectTask: setSelectedTask, // Callback to set selected task
+
+          // Darkened Overlay when Timer is Running
+          if (_isRunning)
+            Container(
+              color: Colors.black.withOpacity(0.9), // Darkened background
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Task Progress Bar
+                  LinearProgressIndicator(
+                    value: _progress,
+                    backgroundColor: Colors.grey[800],
+                    valueColor:
+                        const AlwaysStoppedAnimation<Color>(Colors.greenAccent),
+                  ),
+                  const SizedBox(height: 40),
+
+                  // Selected Task Name
+                  Text(
+                    selectedTaskName ?? 'No Task Selected',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 40),
+
+                  // Timer Display
+                  Text(
+                    _formatDuration(_remainingTime),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 60,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+
+                  // Stop Button
+                  ElevatedButton(
+                    onPressed: _stopTimer,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 30, vertical: 10),
+                    ),
+                    child: const Text(
+                      'Stop',
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
         ],
       ),
     );
