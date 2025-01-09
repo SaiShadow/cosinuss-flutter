@@ -14,7 +14,7 @@ class PomodoroTimerPage extends StatefulWidget {
 }
 
 class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
-  static const int pomodoroTimerAmount = 1;
+  static const int pomodoroTimerAmount = 25;
   static const int shortBreakAmount = 5;
   static const int longBreakAmount = 15;
 
