@@ -1,4 +1,4 @@
-import 'package:cosinuss/pages/home_page.dart';
+import 'package:cosinuss/pages/main_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -25,7 +25,8 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const HomePage(title: 'Cosinuss° One - Demo'),
+      home: const MainPage(title: 'Cosinuss° One - Demo'),
+      debugShowCheckedModeBanner: false, // Disables the debug banner.
     );
   }
 }
