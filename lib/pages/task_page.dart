@@ -13,6 +13,8 @@ class TaskPage extends StatefulWidget {
 
 class _TaskPageState extends State<TaskPage> {
   final _tasks = <Task>[];
+  // Track the selected task
+  int? _selectedTaskId;
 
   void _addNewTask(Task task) {
     setState(() {
@@ -44,6 +46,12 @@ class _TaskPageState extends State<TaskPage> {
     });
   }
 
+  void _selectTask(int id) {
+    setState(() {
+      _selectedTaskId = id; // Set the selected task ID
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,11 +78,18 @@ class _TaskPageState extends State<TaskPage> {
       itemCount: _tasks.length,
       itemBuilder: (context, index) {
         final task = _tasks[index];
-        return TaskItem(
-          task: task,
-          onDismissed: () => _removeTask(task.id),
-          onTaskCompletionChange: (isCompleted) =>
-              _taskCompletionChange(task.id, isCompleted),
+        final isSelected =
+            task.id == _selectedTaskId; // Check if task is selected
+
+        return GestureDetector(
+          onTap: () => _selectTask(task.id), // Select task on tap
+          child: TaskItem(
+            task: task,
+            isSelected: isSelected, // Pass selection state to TaskItem
+            onDismissed: () => _removeTask(task.id),
+            onTaskCompletionChange: (isCompleted) =>
+                _taskCompletionChange(task.id, isCompleted),
+          ),
         );
       },
     );
