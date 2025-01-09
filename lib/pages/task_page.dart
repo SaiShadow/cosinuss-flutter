@@ -89,6 +89,7 @@ class _TaskPageState extends State<TaskPage> {
             onDismissed: () => _removeTask(task.id),
             onTaskCompletionChange: (isCompleted) =>
                 _taskCompletionChange(task.id, isCompleted),
+            onGraphPressed: () {},
           ),
         );
       },
