@@ -5,7 +5,7 @@ class TaskItem extends StatelessWidget {
   const TaskItem({
     Key? key,
     required this.task,
-    required this.isSelected, // New parameter for selection
+    required this.isSelected,
     required this.onTaskCompletionChange,
     required this.onDismissed,
     required this.onGraphPressed, // Callback for graph button
