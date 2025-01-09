@@ -16,15 +16,45 @@ class _TaskPageState extends State<TaskPage> {
   // Track the selected task
   int? _selectedTaskId;
 
+  @override
+  void initState() {
+    super.initState();
+    _initializeDefaultTask();
+  }
+
+  // Add a default task on initialization
+  void _initializeDefaultTask() {
+    const defaultTask = Task(
+      id: 1, // Set a unique ID
+      name: 'Quick Start Task',
+      isCompleted: false,
+      time: '0',
+    );
+
+    setState(() {
+      _tasks.add(defaultTask);
+      _selectedTaskId = defaultTask.id; // Automatically select the default task
+    });
+  }
+
   void _addNewTask(Task task) {
     setState(() {
       _tasks.insert(0, task);
+      if (_tasks.length == 1) {
+        // If this is the only task, make it the selected task
+        _selectedTaskId = task.id;
+      }
     });
   }
 
   void _removeTask(int id) {
     setState(() {
       _tasks.removeWhere((element) => element.id == id);
+
+      // Reset selection if the selected task is removed
+      if (_selectedTaskId == id) {
+        _selectedTaskId = _tasks.isNotEmpty ? _tasks.first.id : null;
+      }
     });
   }
 
@@ -74,18 +104,29 @@ class _TaskPageState extends State<TaskPage> {
   }
 
   Widget _buildList() {
+    if (_tasks.isEmpty) {
+      return Center(
+        child: Text(
+          'No tasks available. Add a task to get started!',
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: Colors.grey,
+              ),
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
+
     return ListView.builder(
       itemCount: _tasks.length,
       itemBuilder: (context, index) {
         final task = _tasks[index];
-        final isSelected =
-            task.id == _selectedTaskId; // Check if task is selected
+        final isSelected = task.id == _selectedTaskId;
 
         return GestureDetector(
-          onTap: () => _selectTask(task.id), // Select task on tap
+          onTap: () => _selectTask(task.id),
           child: TaskItem(
             task: task,
-            isSelected: isSelected, // Pass selection state to TaskItem
+            isSelected: isSelected,
             onDismissed: () => _removeTask(task.id),
             onTaskCompletionChange: (isCompleted) =>
                 _taskCompletionChange(task.id, isCompleted),
