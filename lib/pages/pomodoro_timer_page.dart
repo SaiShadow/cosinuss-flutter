@@ -20,7 +20,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   static const String _breakSessionLabel = 'Break Time';
   static const String _title = 'Pomodoro Timer';
   static const String _startButtonLabel = 'Start';
-  static const String _stopButtonLabel = 'Stop';
+  static const String _stopButtonLabel = 'Pause';
   static const String _skipButtonLabel = 'Skip';
 
   late Session _currentSession;
@@ -136,7 +136,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     }
 
     return _currentSession == Session.work
-        ? Colors.deepOrange.shade900
+        ? Colors.deepOrange.shade400
         : Colors.lightBlue;
   }
 
@@ -145,15 +145,15 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          'Heart Rate: ${widget.sensorData.heartRate}',
+          'Heart Rate: ${widget.sensorData.heartRate}\n',
           style: const TextStyle(color: Colors.white, fontSize: 16),
         ),
         Text(
-          'Temperature: ${widget.sensorData.bodyTemperature}',
+          'Temperature: ${widget.sensorData.bodyTemperature}\n',
           style: const TextStyle(color: Colors.white, fontSize: 16),
         ),
         Text(
-          'Accelerometer: X: ${widget.sensorData.accX}, Y: ${widget.sensorData.accY}, Z: ${widget.sensorData.accZ}',
+          'Accelerometer: \n X: ${widget.sensorData.accX} \nY: ${widget.sensorData.accY}\nZ: ${widget.sensorData.accZ}',
           style: const TextStyle(color: Colors.white, fontSize: 16),
         ),
       ],
@@ -170,7 +170,14 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(_title),
+        // Only show when not running
+        title: _isRunning
+            ? null
+            : const Text(
+                _title,
+                style: TextStyle(color: Colors.white),
+              ),
+        backgroundColor: _getPageBackgroundColor(),
       ),
       body: Container(
         color: _getPageBackgroundColor(),
@@ -201,18 +208,19 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                       children: [
                         Text(
                           _getTimerLabel(),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 20,
-                            color: Colors.white,
+                            color:
+                                Colors.white.withOpacity(0.8), // Adjust opacity
                           ),
                         ),
                         const SizedBox(height: 10),
                         Text(
                           _formatDuration(_remainingTime),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 40,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: Colors.white.withOpacity(0.9),
                           ),
                         ),
                       ],
@@ -239,9 +247,9 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                         ),
                         child: Text(
                           _isRunning ? _stopButtonLabel : _startButtonLabel,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 18,
-                            color: Colors.white,
+                            color: Colors.white.withOpacity(0.9),
                           ),
                         ),
                       ),
@@ -254,7 +262,10 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                         ),
                         child: const Text(
                           _skipButtonLabel,
-                          style: TextStyle(fontSize: 18, color: Colors.white),
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ],
