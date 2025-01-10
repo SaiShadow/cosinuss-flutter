@@ -1,4 +1,5 @@
-import 'package:cosinuss/data/sensor_data.dart';
+import 'package:cosinuss/models/data/sensor_data.dart';
+import 'package:cosinuss/models/session.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -14,7 +15,15 @@ class PomodoroTimerPage extends StatefulWidget {
 
 class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   static const int pomodoroTimerAmount = 25;
-  // static const int shortBreakAmount = 5;
+  static const int shortBreakAmount = 5;
+  static const String workSessionLabel = 'Work Session';
+  static const String breakSessionLabel = 'Break Time';
+  static const String title = 'Pomodoro Timer';
+  static const String _timerLabel = 'Remaining Time';
+  static const String _startButtonLabel = 'Start';
+  static const String _stopButtonLabel = 'Stop';
+
+  late Session _currentSession;
 
   bool _isRunning = false;
   late Duration _remainingTime;
@@ -25,6 +34,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   void initState() {
     super.initState();
 
+    _currentSession = Session.work;
     _remainingTime = const Duration(minutes: pomodoroTimerAmount);
     _stopwatch = Stopwatch();
 
@@ -68,15 +78,16 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   }
 
   void _completeTimer() {
-    _stopwatch.stop();
-    _ticker.stop();
+    _stopTimer();
     setState(() {
-      _remainingTime = Duration.zero;
-      _isRunning = false;
+      if (_currentSession == Session.work) {
+        _currentSession = Session.shortBreak;
+        _remainingTime = const Duration(minutes: shortBreakAmount);
+      } else {
+        _currentSession = Session.work;
+        _remainingTime = const Duration(minutes: pomodoroTimerAmount);
+      }
     });
-    // Add any completion logic here, like showing a notification or moving to a break.
-    // Example:
-    // _startBreak(shortBreakAmount); // Placeholder for break logic
   }
 
   @override
@@ -85,11 +96,50 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     super.dispose();
   }
 
+  String _formatDuration(Duration duration) {
+    final minutes = duration.inMinutes.toString().padLeft(2, '0');
+    final seconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
+  }
+
+  Color _getBackgroundColor() {
+    if (_isRunning) {
+      return Colors.black; // Dark mode when running
+    }
+    return _currentSession == Session.work ? Colors.red : Colors.blue;
+  }
+
+  Widget _buildSensorData() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'Heart Rate: ${widget.sensorData.heartRate}',
+          style: const TextStyle(color: Colors.white, fontSize: 16),
+        ),
+        Text(
+          'Temperature: ${widget.sensorData.bodyTemperature}',
+          style: const TextStyle(color: Colors.white, fontSize: 16),
+        ),
+        Text(
+          'Accelerometer: X: ${widget.sensorData.accX}, Y: ${widget.sensorData.accY}, Z: ${widget.sensorData.accZ}',
+          style: const TextStyle(color: Colors.white, fontSize: 16),
+        ),
+      ],
+    );
+  }
+
+  String _getTimerLabel() {
+    return _currentSession == Session.work
+        ? workSessionLabel
+        : breakSessionLabel;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pomodoro Timer'),
+        title: const Text(title),
       ),
       body: Column(
         children: [
@@ -117,7 +167,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                   child: Column(
                     children: [
                       const Text(
-                        'Remaining Time',
+                        _timerLabel,
                         style: TextStyle(fontSize: 20, color: Colors.white),
                       ),
                       const SizedBox(height: 10),
@@ -151,7 +201,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                             horizontal: 30, vertical: 10),
                       ),
                       child: Text(
-                        _isRunning ? 'Stop' : 'Start',
+                        _isRunning ? _stopButtonLabel : _startButtonLabel,
                         style:
                             const TextStyle(fontSize: 18, color: Colors.white),
                       ),
@@ -176,11 +226,5 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
         ],
       ),
     );
-  }
-
-  String _formatDuration(Duration duration) {
-    final minutes = duration.inMinutes.toString().padLeft(2, '0');
-    final seconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
-    return '$minutes:$seconds';
   }
 }
