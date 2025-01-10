@@ -262,6 +262,9 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                 ],
               ),
             ),
+            const SizedBox(height: 20),
+            // Sensor Data Section
+            _buildSensorData(),
           ],
         ),
       ),
