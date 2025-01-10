@@ -1,5 +1,5 @@
 import 'package:cosinuss/models/data/sensor_data.dart';
-import 'package:cosinuss/models/session.dart';
+import 'package:cosinuss/models/pomodoro_session_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
