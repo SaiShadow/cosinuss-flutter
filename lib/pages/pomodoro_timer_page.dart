@@ -19,9 +19,9 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   static const String _workSessionLabel = 'Work Session';
   static const String _breakSessionLabel = 'Break Time';
   static const String _title = 'Pomodoro Timer';
-  static const String _timerLabel = 'Remaining Time';
   static const String _startButtonLabel = 'Start';
   static const String _stopButtonLabel = 'Stop';
+  static const String _skipButtonLabel = 'Skip';
 
   late Session _currentSession;
 
@@ -41,8 +41,12 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     _ticker = Ticker((Duration elapsed) {
       if (_stopwatch.isRunning) {
         setState(() {
-          _remainingTime = const Duration(minutes: _pomodoroTimerAmount) -
-              _stopwatch.elapsed;
+          final sessionDuration = _currentSession == Session.work
+              ? _pomodoroTimerAmount
+              : _shortBreakAmount;
+          _remainingTime =
+              Duration(minutes: sessionDuration) - _stopwatch.elapsed;
+
           if (_remainingTime <= Duration.zero) {
             _completeTimer();
           }
@@ -51,35 +55,28 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     });
   }
 
-  void _stopTimer() {
-    _stopwatch.stop();
-    _ticker.stop();
-    setState(() {
-      _isRunning = false;
-    });
-  }
-
   void _startTimer() {
-    _stopwatch.start();
-    _ticker.start();
     setState(() {
+      _stopwatch.start();
+      _ticker.start();
       _isRunning = true;
     });
   }
 
-  void _resetTimer() {
-    _stopTimer();
+  void _stopTimer() {
     setState(() {
       _stopwatch.stop();
-      _stopwatch.reset();
-      _remainingTime = const Duration(minutes: _pomodoroTimerAmount);
+      _ticker.stop();
       _isRunning = false;
     });
   }
 
-  void _completeTimer() {
+  void _skipToNextSession() {
     _stopTimer();
     setState(() {
+      _stopwatch.reset();
+
+      // Switch sessions and set the correct remaining time
       if (_currentSession == Session.work) {
         _currentSession = Session.shortBreak;
         _remainingTime = const Duration(minutes: _shortBreakAmount);
@@ -89,6 +86,20 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
       }
     });
   }
+
+  void _completeTimer() {
+    _skipToNextSession();
+  }
+
+  // void _resetTimer() {
+  //   _stopTimer();
+  //   setState(() {
+  //     _stopwatch.stop();
+  //     _stopwatch.reset();
+  //     _remainingTime = const Duration(minutes: _pomodoroTimerAmount);
+  //     _isRunning = false;
+  //   });
+  // }
 
   @override
   void dispose() {
@@ -141,89 +152,98 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
       appBar: AppBar(
         title: const Text(_title),
       ),
-      body: Column(
-        children: [
-          // Stopwatch Section
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Timer Box
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20.0),
-                  decoration: BoxDecoration(
-                    color: Colors.blueAccent,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+      body: Container(
+        color: _getBackgroundColor(),
+        child: Column(
+          children: [
+            // Timer Section
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Timer Box
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20.0),
+                    decoration: BoxDecoration(
+                      color: Colors.blueAccent,
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          _getTimerLabel(),
+                          style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          _formatDuration(_remainingTime),
+                          style: const TextStyle(
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  child: Column(
+                  const SizedBox(height: 40),
+                  // Buttons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      const Text(
-                        _timerLabel,
-                        style: TextStyle(fontSize: 20, color: Colors.white),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_isRunning) {
+                            _stopTimer();
+                          } else {
+                            _startTimer();
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              _isRunning ? Colors.red : Colors.green,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 30, vertical: 10),
+                        ),
+                        child: Text(
+                          _isRunning ? _stopButtonLabel : _startButtonLabel,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
-                      const SizedBox(height: 10),
-                      Text(
-                        _formatDuration(_remainingTime),
-                        style: const TextStyle(
-                          fontSize: 40,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                      ElevatedButton(
+                        onPressed: _skipToNextSession,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blueGrey,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 30, vertical: 10),
+                        ),
+                        child: const Text(
+                          _skipButtonLabel,
+                          style: TextStyle(fontSize: 18, color: Colors.white),
                         ),
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: 40),
-                // Start/Stop and Reset Buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        if (_isRunning) {
-                          _stopTimer();
-                        } else {
-                          _startTimer();
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _isRunning ? Colors.red : Colors.green,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 30, vertical: 10),
-                      ),
-                      child: Text(
-                        _isRunning ? _stopButtonLabel : _startButtonLabel,
-                        style:
-                            const TextStyle(fontSize: 18, color: Colors.white),
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: _resetTimer,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueGrey,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 30, vertical: 10),
-                      ),
-                      child: const Text(
-                        'Reset',
-                        style: TextStyle(fontSize: 18, color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
