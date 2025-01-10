@@ -14,11 +14,11 @@ class PomodoroTimerPage extends StatefulWidget {
 }
 
 class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
-  static const int pomodoroTimerAmount = 25;
-  static const int shortBreakAmount = 5;
-  static const String workSessionLabel = 'Work Session';
-  static const String breakSessionLabel = 'Break Time';
-  static const String title = 'Pomodoro Timer';
+  static const int _pomodoroTimerAmount = 25;
+  static const int _shortBreakAmount = 5;
+  static const String _workSessionLabel = 'Work Session';
+  static const String _breakSessionLabel = 'Break Time';
+  static const String _title = 'Pomodoro Timer';
   static const String _timerLabel = 'Remaining Time';
   static const String _startButtonLabel = 'Start';
   static const String _stopButtonLabel = 'Stop';
@@ -35,14 +35,14 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     super.initState();
 
     _currentSession = Session.work;
-    _remainingTime = const Duration(minutes: pomodoroTimerAmount);
+    _remainingTime = const Duration(minutes: _pomodoroTimerAmount);
     _stopwatch = Stopwatch();
 
     _ticker = Ticker((Duration elapsed) {
       if (_stopwatch.isRunning) {
         setState(() {
-          _remainingTime =
-              const Duration(minutes: pomodoroTimerAmount) - _stopwatch.elapsed;
+          _remainingTime = const Duration(minutes: _pomodoroTimerAmount) -
+              _stopwatch.elapsed;
           if (_remainingTime <= Duration.zero) {
             _completeTimer();
           }
@@ -72,7 +72,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     setState(() {
       _stopwatch.stop();
       _stopwatch.reset();
-      _remainingTime = const Duration(minutes: pomodoroTimerAmount);
+      _remainingTime = const Duration(minutes: _pomodoroTimerAmount);
       _isRunning = false;
     });
   }
@@ -82,10 +82,10 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     setState(() {
       if (_currentSession == Session.work) {
         _currentSession = Session.shortBreak;
-        _remainingTime = const Duration(minutes: shortBreakAmount);
+        _remainingTime = const Duration(minutes: _shortBreakAmount);
       } else {
         _currentSession = Session.work;
-        _remainingTime = const Duration(minutes: pomodoroTimerAmount);
+        _remainingTime = const Duration(minutes: _pomodoroTimerAmount);
       }
     });
   }
@@ -131,15 +131,15 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
 
   String _getTimerLabel() {
     return _currentSession == Session.work
-        ? workSessionLabel
-        : breakSessionLabel;
+        ? _workSessionLabel
+        : _breakSessionLabel;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(title),
+        title: const Text(_title),
       ),
       body: Column(
         children: [
