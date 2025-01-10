@@ -1,4 +1,4 @@
-import 'package:cosinuss/data/sensor_data.dart';
+import 'package:cosinuss/models/data/sensor_data.dart';
 import 'package:cosinuss/utils/bluetooth_service.dart';
 import 'package:flutter/material.dart';
 

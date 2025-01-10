@@ -1,0 +1,1 @@
+enum Session { work, shortBreak }
