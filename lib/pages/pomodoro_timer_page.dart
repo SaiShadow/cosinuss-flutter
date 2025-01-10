@@ -1,5 +1,4 @@
 import 'package:cosinuss/data/sensor_data.dart';
-import 'package:cosinuss/pages/task_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -15,8 +14,7 @@ class PomodoroTimerPage extends StatefulWidget {
 
 class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   static const int pomodoroTimerAmount = 25;
-  static const int shortBreakAmount = 5;
-  static const int longBreakAmount = 15;
+  // static const int shortBreakAmount = 5;
 
   bool _isRunning = false;
   late Duration _remainingTime;
@@ -174,11 +172,6 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                 ),
               ],
             ),
-          ),
-          const Divider(),
-          // Task Page Section
-          const Expanded(
-            child: TaskPage(),
           ),
         ],
       ),

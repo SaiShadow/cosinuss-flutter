@@ -1,6 +1,6 @@
 import 'package:cosinuss/pages/home_page.dart';
 import 'package:cosinuss/pages/pomodoro_timer_page.dart';
-import 'package:cosinuss/pages/stopwatch_page.dart';
+// import 'package:cosinuss/pages/stopwatch_page.dart';
 import 'package:cosinuss/data/sensor_data.dart';
 import 'package:cosinuss/utils/bluetooth_service.dart';
 import 'package:flutter/material.dart';
@@ -76,9 +76,9 @@ class _MainPageState extends State<MainPage> {
           PomodoroTimerPage(
             sensorData: _sensorData,
           ),
-          StopwatchPage(
-            sensorData: _sensorData,
-          ),
+          // StopwatchPage(
+          //   sensorData: _sensorData,
+          // ),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -94,13 +94,18 @@ class _MainPageState extends State<MainPage> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.av_timer),
+            icon: Icon(Icons.timer),
+            // icon: Icon(Icons.av_timer),
             // icon: Icon(Icons.timelapse),
             label: 'Timer',
           ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(Icons.timer),
+          //   label: 'Stopwatch',
+          // ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.timer),
-            label: 'Stopwatch',
+            icon: Icon(Icons.bar_chart_sharp),
+            label: 'Graphs',
           ),
         ],
       ),
