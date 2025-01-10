@@ -29,23 +29,22 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   late Duration _remainingTime;
   late final Stopwatch _stopwatch;
   late final Ticker _ticker;
+  late int _sessionDuration;
 
   @override
   void initState() {
     super.initState();
 
     _currentSession = Session.work;
-    _remainingTime = const Duration(minutes: _pomodoroTimerAmount);
+    _sessionDuration = _getSessionDuration();
+    _remainingTime = Duration(minutes: _sessionDuration);
     _stopwatch = Stopwatch();
 
     _ticker = Ticker((Duration elapsed) {
       if (_stopwatch.isRunning) {
         setState(() {
-          final sessionDuration = _currentSession == Session.work
-              ? _pomodoroTimerAmount
-              : _shortBreakAmount;
           _remainingTime =
-              Duration(minutes: sessionDuration) - _stopwatch.elapsed;
+              Duration(minutes: _sessionDuration) - _stopwatch.elapsed;
 
           if (_remainingTime <= Duration.zero) {
             _completeTimer();
@@ -53,6 +52,12 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
         });
       }
     });
+  }
+
+  int _getSessionDuration() {
+    return _currentSession == Session.work
+        ? _pomodoroTimerAmount
+        : _shortBreakAmount;
   }
 
   void _startTimer() {
@@ -76,14 +81,15 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     setState(() {
       _stopwatch.reset();
 
-      // Switch sessions and set the correct remaining time
+      // Switch sessions and update the session duration
       if (_currentSession == Session.work) {
         _currentSession = Session.shortBreak;
-        _remainingTime = const Duration(minutes: _shortBreakAmount);
       } else {
         _currentSession = Session.work;
-        _remainingTime = const Duration(minutes: _pomodoroTimerAmount);
       }
+      _sessionDuration = _getSessionDuration(); // Update session duration
+      _remainingTime =
+          Duration(minutes: _sessionDuration); // Reset remaining time
     });
   }
 
@@ -113,11 +119,25 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     return '$minutes:$seconds';
   }
 
-  Color _getBackgroundColor() {
+  Color _getPageBackgroundColor() {
     if (_isRunning) {
-      return Colors.black; // Dark mode when running
+      return _getRunningBackgroundColor(); // Dark mode when running
     }
-    return _currentSession == Session.work ? Colors.red : Colors.blue;
+    return _currentSession == Session.work ? Colors.deepOrange : Colors.blue;
+  }
+
+  Color _getRunningBackgroundColor() {
+    return Colors.black; // Dark mode when running
+  }
+
+  Color _getTimerBackgroundColor() {
+    if (_isRunning) {
+      return _getRunningBackgroundColor(); // Dark mode when running
+    }
+
+    return _currentSession == Session.work
+        ? Colors.deepOrange.shade900
+        : Colors.lightBlue;
   }
 
   Widget _buildSensorData() {
@@ -153,7 +173,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
         title: const Text(_title),
       ),
       body: Container(
-        color: _getBackgroundColor(),
+        color: _getPageBackgroundColor(),
         child: Column(
           children: [
             // Timer Section
@@ -167,7 +187,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(20.0),
                     decoration: BoxDecoration(
-                      color: Colors.blueAccent,
+                      color: _getTimerBackgroundColor(),
                       borderRadius: BorderRadius.circular(10),
                       boxShadow: [
                         BoxShadow(
