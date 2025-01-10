@@ -31,24 +31,47 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
+    _bluetoothManager = _initializeBluetoothManager();
+  }
 
-    // Initialize the Bluetooth manager
-    _bluetoothManager = BLEManager(
-        updateConnectionStatus: (status) => setState(() {
-              _sensorData.updateConnectionStatus(status);
-            }),
-        updateHeartRate: (data) => setState(() {
-              _sensorData.updateHeartRate(data);
-            }),
-        updateBodyTemperature: (data) => setState(() {
-              _sensorData.updateBodyTemperature(data);
-            }),
-        updatePPGRaw: (data) => setState(() {
-              _sensorData.updatePPGRaw(data);
-            }),
-        updateAccelerometer: (data) => setState(() {
-              _sensorData.updateAccelerometer(data);
-            }));
+  BLEManager _initializeBluetoothManager() {
+    return BLEManager(
+      updateConnectionStatus: _onConnectionStatusUpdated,
+      updateHeartRate: _onHeartRateUpdated,
+      updateBodyTemperature: _onBodyTemperatureUpdated,
+      updatePPGRaw: _onPPGDataUpdated,
+      updateAccelerometer: _onAccelerometerUpdated,
+    );
+  }
+
+  void _onConnectionStatusUpdated(bool status) {
+    setState(() {
+      _sensorData.updateConnectionStatus(status);
+    });
+  }
+
+  void _onHeartRateUpdated(dynamic data) {
+    setState(() {
+      _sensorData.updateHeartRate(data);
+    });
+  }
+
+  void _onBodyTemperatureUpdated(dynamic data) {
+    setState(() {
+      _sensorData.updateBodyTemperature(data);
+    });
+  }
+
+  void _onPPGDataUpdated(dynamic data) {
+    setState(() {
+      _sensorData.updatePPGRaw(data);
+    });
+  }
+
+  void _onAccelerometerUpdated(dynamic data) {
+    setState(() {
+      _sensorData.updateAccelerometer(data);
+    });
   }
 
   @override

@@ -96,7 +96,8 @@ class HomePage extends StatelessWidget {
         ,
         child: FloatingActionButton(
           onPressed: _connect,
-          tooltip: 'Increment',
+          tooltip: 'Connect to Device',
+          backgroundColor: Colors.green,
           child: const Icon(Icons.bluetooth_searching_sharp),
         ),
       ),
