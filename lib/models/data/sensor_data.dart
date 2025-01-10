@@ -4,34 +4,45 @@ class SensorData {
   bool _isConnected = false;
   String _connectionStatus = "Disconnected";
 
-  String _heartRate = "- bpm";
-  String _bodyTemperature = '- °C';
+  int _heartRate = 0;
+  double _bodyTemperature = 0.0;
 
-  String _accX = "-";
-  String _accY = "-";
-  String _accZ = "-";
+  int _accX = 0;
+  int _accY = 0;
+  int _accZ = 0;
 
-  String _ppgGreen = "-";
-  String _ppgRed = "-";
-  String _ppgAmbient = "-";
+  int _ppgGreen = 0;
+  int _ppgRed = 0;
+  int _ppgAmbient = 0;
 
 // Getter for heart rate
-  String get heartRate => _heartRate;
+  int get rawHeartRate => _heartRate; // Raw value as integer
+  String get heartRate => _heartRate != 0 ? "$_heartRate bpm" : "- bpm";
 
 // Getter for body temperature
-  String get bodyTemperature => _bodyTemperature;
+  double get rawBodyTemperature => _bodyTemperature; // Raw value
+  String get bodyTemperature =>
+      "${_bodyTemperature.toStringAsFixed(1)} °C"; // String with unit
 
 // Getters for accelerometer values
-  String get accX => _accX;
-  String get accY => _accY;
-  String get accZ => _accZ;
+  int get rawAccX => _accX;
+  int get rawAccY => _accY;
+  int get rawAccZ => _accZ;
+
+  String get accX => "$_accX (unknown unit)";
+  String get accY => "$_accY (unknown unit)";
+  String get accZ => "$_accZ (unknown unit)";
 
 // Getters for PPG values
-  String get ppgGreen => _ppgGreen;
-  String get ppgRed => _ppgRed;
-  String get ppgAmbient => _ppgAmbient;
+  int get rawPPGGreen => _ppgGreen;
+  int get rawPPGRed => _ppgRed;
+  int get rawPPGAmbient => _ppgAmbient;
 
-  // Getter for connection status
+  String get ppgGreen => "$_ppgGreen (unknown unit)";
+  String get ppgRed => "$_ppgRed (unknown unit)";
+  String get ppgAmbient => "$_ppgAmbient (unknown unit)";
+
+// Getter for connection status
   String get connectionStatus => _connectionStatus;
   bool get isConnected => _isConnected;
 
@@ -43,74 +54,45 @@ class SensorData {
   void updateHeartRate(rawData) {
     Uint8List bytes = Uint8List.fromList(rawData);
 
-    // based on GATT standard
-    var bpm = bytes[1];
+    // Based on GATT standard
+    int bpm = bytes[1];
     if (!((bytes[0] & 0x01) == 0)) {
       bpm = (((bpm >> 8) & 0xFF) | ((bpm << 8) & 0xFF00));
     }
 
-    var bpmLabel = "- bpm";
-    if (bpm != 0) {
-      bpmLabel = bpm.toString() + " bpm";
-    }
-
-    _heartRate = bpmLabel;
+    _heartRate = bpm;
   }
 
   void updateBodyTemperature(rawData) {
-    var flag = rawData[0];
+    int flag = rawData[0];
 
-    // based on GATT standard
+    // Based on GATT standard
     double temperature = twosComplimentOfNegativeMantissa(
             ((rawData[3] << 16) | (rawData[2] << 8) | rawData[1]) & 16777215) /
         100.0;
     if ((flag & 1) != 0) {
-      temperature = ((98.6 * temperature) - 32.0) *
-          (5.0 / 9.0); // convert Fahrenheit to Celsius
+      temperature =
+          ((98.6 * temperature) - 32.0) * (5.0 / 9.0); // Fahrenheit to Celsius
     }
 
-    _bodyTemperature = temperature.toString() + " °C"; // todo update body temp
+    _bodyTemperature = temperature;
   }
 
   void updatePPGRaw(rawData) {
     Uint8List bytes = Uint8List.fromList(rawData);
 
-    // corresponds to the raw reading of the PPG sensor from which the heart rate is computed
-    //
-    // example plot https://e2e.ti.com/cfs-file/__key/communityserver-discussions-components-files/73/Screen-Shot-2019_2D00_01_2D00_24-at-19.30.24.png
-    // (image just for illustration purpose, obtained from a different sensor! Sensor value range differs.)
-
-    var ppgRed = bytes[0] |
-        bytes[1] << 8 |
-        bytes[2] << 16 |
-        bytes[3] << 32; // raw green color value of PPG sensor
-    var ppgGreen = bytes[4] |
-        bytes[5] << 8 |
-        bytes[6] << 16 |
-        bytes[7] << 32; // raw red color value of PPG sensor
-
-    var ppgGreenAmbient = bytes[8] |
-        bytes[9] << 8 |
-        bytes[10] << 16 |
-        bytes[11] <<
-            32; // ambient light sensor (e.g., if sensor is not placed correctly)
-
-    _ppgGreen = ppgRed.toString() + " (unknown unit)";
-    _ppgRed = ppgGreen.toString() + " (unknown unit)";
-    _ppgAmbient = ppgGreenAmbient.toString() + " (unknown unit)";
+    _ppgGreen = bytes[0] | bytes[1] << 8 | bytes[2] << 16 | bytes[3] << 32;
+    _ppgRed = bytes[4] | bytes[5] << 8 | bytes[6] << 16 | bytes[7] << 32;
+    _ppgAmbient = bytes[8] | bytes[9] << 8 | bytes[10] << 16 | bytes[11] << 32;
   }
 
   void updateAccelerometer(rawData) {
     Int8List bytes = Int8List.fromList(rawData);
 
-    // description based on placing the earable into your right ear canal
-    int accX = bytes[14];
-    int accY = bytes[16];
-    int accZ = bytes[18];
-
-    _accX = accX.toString() + " (unknown unit)";
-    _accY = accY.toString() + " (unknown unit)";
-    _accZ = accZ.toString() + " (unknown unit)";
+    // Description based on placing the earable into your right ear canal
+    _accX = bytes[14];
+    _accY = bytes[16];
+    _accZ = bytes[18];
   }
 
   int twosComplimentOfNegativeMantissa(int mantissa) {
