@@ -23,14 +23,10 @@ class GraphPage extends StatelessWidget {
           title: const Text("Graphs"),
           bottom: const TabBar(
             tabs: [
-              Tab(icon: Icon(Icons.psychology), text: "Focus"), // Sun icon
-              Tab(
-                  icon: Icon(Icons.self_improvement),
-                  text: "Stress"), // Stress icon
-              Tab(icon: Icon(Icons.favorite), text: "Heart"), // Heart icon
-              Tab(
-                  icon: Icon(Icons.thermostat),
-                  text: "Temp"), // Thermometer icon
+              Tab(icon: Icon(Icons.psychology), text: "Focus"),
+              Tab(icon: Icon(Icons.self_improvement), text: "Stress"),
+              Tab(icon: Icon(Icons.favorite), text: "Heart"),
+              Tab(icon: Icon(Icons.thermostat), text: "Temp"),
             ],
           ),
         ),
@@ -72,6 +68,11 @@ class GraphPage extends StatelessWidget {
       );
     }
 
+    // Filter out invalid data
+    final validData = data.where((entry) {
+      return entry["timestamp"] != null && entry["value"] != null;
+    }).toList();
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: LineChart(
@@ -83,12 +84,11 @@ class GraphPage extends StatelessWidget {
                 reservedSize: 40,
                 getTitlesWidget: (value, meta) {
                   final DateTime timestamp =
-                      DateTime.fromMillisecondsSinceEpoch(
-                          (value * 1000).toInt());
+                      DateTime.fromMillisecondsSinceEpoch(value.toInt());
                   return Padding(
                     padding: const EdgeInsets.only(top: 8.0), // Add spacing
                     child: Text(
-                      "${timestamp.hour}:${timestamp.minute}",
+                      "${timestamp.hour}:${timestamp.minute.toString().padLeft(2, '0')}",
                       style: const TextStyle(fontSize: 10),
                     ),
                   );
@@ -103,7 +103,7 @@ class GraphPage extends StatelessWidget {
                   return Padding(
                     padding: const EdgeInsets.only(right: 8.0), // Add spacing
                     child: Text(
-                      value.toString(),
+                      value.toStringAsFixed(1),
                       style: const TextStyle(fontSize: 10),
                     ),
                   );
@@ -127,8 +127,12 @@ class GraphPage extends StatelessWidget {
           gridData: const FlGridData(show: true),
           lineBarsData: [
             LineChartBarData(
-              spots: data.map((entry) {
-                return FlSpot(entry["timestamp"] / 1000, entry["value"]);
+              spots: validData.map((entry) {
+                return FlSpot(
+                  (entry["timestamp"] as double) /
+                      1000, // Convert timestamp to seconds
+                  entry["value"] as double,
+                );
               }).toList(),
               isCurved: true,
               belowBarData: BarAreaData(show: true),
