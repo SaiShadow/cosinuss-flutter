@@ -6,6 +6,7 @@ import 'package:cosinuss/models/data/sensor_data.dart';
 import 'package:cosinuss/models/data/session_data.dart';
 import 'package:cosinuss/models/logic/focus_calculator.dart';
 import 'package:cosinuss/models/logic/stress_calculator.dart';
+import 'package:cosinuss/models/pomodoro_focus_modes.dart';
 import 'package:cosinuss/models/pomodoro_session_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -80,10 +81,13 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   // Sound for when session ends
   late final AudioPlayer _audioPlayer;
 
+  late FocusMode _selectedFocusMode;
+
   @override
   void initState() {
     super.initState();
 
+    _selectedFocusMode = FocusMode.extremeFocus;
     _audioPlayer = AudioPlayer();
     _currentSession = Session.work;
     _sessionDuration = _getSessionDuration();
@@ -197,19 +201,31 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
 
   void _adjustSessionDurations(double focusScore, double stressScore) {
     if (_currentSession == Session.work) {
-      if (stressScore > veryHighValue) {
-        // Very high stress: Reduce work time dynamically
-        _reduceWorkTime();
-      } else if (_remainingTime.inMinutes <= 1 && focusScore > highValue) {
-        // High focus: Extend work time at the end of the session
-        _extendWorkTime();
-      }
+      _handleWorkSessionAdjustments(focusScore, stressScore);
     } else if (_currentSession == Session.shortBreak) {
-      if (stressScore > highValue) {
-        // High stress: Extend break time
-        _extendBreakTime();
+      _handleBreakSessionAdjustments(stressScore);
+    }
+  }
+
+  void _handleWorkSessionAdjustments(double focusScore, double stressScore) {
+    if (_selectedFocusMode == FocusMode.lowStress) {
+      if (stressScore > veryHighValue) {
+        // Low Stress mode: Reduce work time if stress is very high
+        _reduceWorkTime();
       }
-      // High focus during breaks doesn't reduce break time; we passively monitor it.
+    }
+
+    if (_remainingTime.inMinutes <= 1 && focusScore > highValue) {
+      // Extend work time at the end of the session if focus is high
+      _extendWorkTime();
+    }
+  }
+
+  void _handleBreakSessionAdjustments(double stressScore) {
+    if (_selectedFocusMode == FocusMode.lowStress && //
+        stressScore > highValue) {
+      // Low Stress mode: Extend break time if stress is high and in low stress mode
+      _extendBreakTime();
     }
   }
 
@@ -497,6 +513,45 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 20),
+                  // Mode Toggle Buttons
+                  if (!_isRunning)
+                    ToggleButtons(
+                      isSelected: [
+                        _selectedFocusMode == FocusMode.extremeFocus,
+                        _selectedFocusMode == FocusMode.lowStress,
+                      ],
+                      onPressed: (int index) {
+                        setState(() {
+                          _selectedFocusMode = FocusMode.values[index];
+                          print("Focus Mode changed to $_selectedFocusMode");
+                        });
+                      },
+                      color: Colors.grey, // Default color
+                      fillColor: Colors.lightBlueAccent, // Color for low stress
+                      children: const [
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          child: Text(
+                            'Extreme Focus',
+                            style: TextStyle(
+                              // fontSize: 18,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          child: Text(
+                            'Low Stress',
+                            style: TextStyle(
+                              // fontSize: 18,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                 ],
               ),
             ),
