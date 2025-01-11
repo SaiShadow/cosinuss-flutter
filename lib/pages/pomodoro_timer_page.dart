@@ -12,8 +12,17 @@ import 'package:flutter/scheduler.dart';
 class PomodoroTimerPage extends StatefulWidget {
   final SensorData sensorData;
 
-  const PomodoroTimerPage({Key? key, required this.sensorData})
-      : super(key: key);
+  final Function(List<SessionData>) onSessionDataUpdate;
+  final Function(List<Map<String, dynamic>>) onFocusDataUpdate;
+  final Function(List<Map<String, dynamic>>) onStressDataUpdate;
+
+  const PomodoroTimerPage({
+    Key? key,
+    required this.sensorData,
+    required this.onSessionDataUpdate,
+    required this.onFocusDataUpdate,
+    required this.onStressDataUpdate,
+  }) : super(key: key);
 
   @override
   State<PomodoroTimerPage> createState() => _PomodoroTimerPageState();
@@ -24,7 +33,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   static const int _shortBreakAmount = 5;
   static const String _workSessionLabel = 'Work Session';
   static const String _breakSessionLabel = 'Break Time';
-  static const String _title = 'Pomodoro Timer';
+  static const String _title = 'Pomodoro Focus';
   static const String _startButtonLabel = 'Start';
   static const String _stopButtonLabel = 'Pause';
   static const String _skipButtonLabel = 'Skip';
@@ -92,8 +101,15 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
 
   // Append current sensor readings to _sessionData
   void _collectSensorData() {
-    _sessionData
-        .add(SessionData.fromSensorData(DateTime.now(), widget.sensorData));
+    // Collect sensor data
+    final sessionData =
+        SessionData.fromSensorData(DateTime.now(), widget.sensorData);
+    setState(() {
+      _sessionData.add(sessionData);
+    });
+
+    // Notify parent about updated session data
+    widget.onSessionDataUpdate(_sessionData);
   }
 
   void _calculateFocusAndStress() {
@@ -128,21 +144,23 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   }
 
   void saveFocusAndStressValues(double focusScore, double stressScore) {
-    // Save focus and stress values with timestamps
     _focusData.add({
-      "timestamp": DateTime.now(),
-      "focusScore": focusScore,
+      "timestamp": DateTime.now().millisecondsSinceEpoch.toDouble(),
+      "value": focusScore,
     });
     _stressData.add({
-      "timestamp": DateTime.now(),
-      "stressScore": stressScore,
+      "timestamp": DateTime.now().millisecondsSinceEpoch.toDouble(),
+      "value": stressScore,
     });
+
+    // Notify parent about updated focus and stress data
+    widget.onFocusDataUpdate(_focusData);
+    widget.onStressDataUpdate(_stressData);
 
     // Update UI with the latest levels
     setState(() {
       _currentFocusLevel = _getFocusLevel(focusScore);
       _currentStressLevel = _getStressLevel(stressScore);
-      // debugPrint(
       print(
           "UI Updated: Focus Level=$_currentFocusLevel, Stress Level=$_currentStressLevel");
     });
@@ -260,8 +278,10 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   }
 
   void _startTimer() {
-    // Ensure previous data is cleared
-    _sessionData.clear();
+    if (_currentSession == Session.work) {
+      // Ensure previous data is cleared
+      _sessionData.clear();
+    }
 
     // Start periodic sensor data collection
     _startSensorDataCollection();
@@ -446,7 +466,9 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                       ElevatedButton(
                         onPressed: _skipToNextSession,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blueGrey,
+                          backgroundColor: _isRunning
+                              ? Colors.blueGrey.shade900
+                              : Colors.blueGrey,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 30, vertical: 10),
                         ),

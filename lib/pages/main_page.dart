@@ -1,21 +1,13 @@
 import 'package:cosinuss/models/data/sensor_data.dart';
+import 'package:cosinuss/models/data/session_data.dart';
 import 'package:cosinuss/pages/home_page.dart';
 import 'package:cosinuss/pages/pomodoro_timer_page.dart';
-// import 'package:cosinuss/pages/stopwatch_page.dart';
+import 'package:cosinuss/pages/graph_page.dart';
 import 'package:cosinuss/utils/bluetooth_service.dart';
 import 'package:flutter/material.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key, required this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
 
   final String title;
 
@@ -28,10 +20,33 @@ class _MainPageState extends State<MainPage> {
   late final BLEManager _bluetoothManager;
   int _currentPageIndex = 0;
 
+  // Shared data for the GraphPage
+  List<SessionData> _sessionData = [];
+  List<Map<String, dynamic>> _focusData = [];
+  List<Map<String, dynamic>> _stressData = [];
+
   @override
   void initState() {
     super.initState();
     _bluetoothManager = _initializeBluetoothManager();
+  }
+
+  void _updateSessionData(List<SessionData> sessionData) {
+    setState(() {
+      _sessionData = sessionData;
+    });
+  }
+
+  void _updateFocusData(List<Map<String, dynamic>> focusData) {
+    setState(() {
+      _focusData = focusData;
+    });
+  }
+
+  void _updateStressData(List<Map<String, dynamic>> stressData) {
+    setState(() {
+      _stressData = stressData;
+    });
   }
 
   BLEManager _initializeBluetoothManager() {
@@ -98,10 +113,15 @@ class _MainPageState extends State<MainPage> {
           ),
           PomodoroTimerPage(
             sensorData: _sensorData,
+            onSessionDataUpdate: _updateSessionData,
+            onFocusDataUpdate: _updateFocusData,
+            onStressDataUpdate: _updateStressData,
           ),
-          // StopwatchPage(
-          //   sensorData: _sensorData,
-          // ),
+          GraphPage(
+            sessionData: _sessionData,
+            focusData: _focusData,
+            stressData: _stressData,
+          ),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -118,14 +138,8 @@ class _MainPageState extends State<MainPage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.timer),
-            // icon: Icon(Icons.av_timer),
-            // icon: Icon(Icons.timelapse),
-            label: 'Timer',
+            label: 'Pomodoro Timer',
           ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.timer),
-          //   label: 'Stopwatch',
-          // ),
           BottomNavigationBarItem(
             icon: Icon(Icons.bar_chart_sharp),
             label: 'Graphs',
