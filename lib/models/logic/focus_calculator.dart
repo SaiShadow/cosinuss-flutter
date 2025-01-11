@@ -1,19 +1,26 @@
-import 'package:cosinuss/models/data/sensor_data.dart';
+import 'package:cosinuss/models/data/baseline_metrics.dart';
+import 'package:cosinuss/models/data/session_data.dart';
+import 'package:cosinuss/models/logic/calculator.dart';
 
-class FocusCalculator {
-  static double calculateFocus(SensorData sensorData) {
-    // Example logic: High focus = stable heart rate + stable movement
-    int heartRate = sensorData.rawHeartRate;
-    int accX = sensorData.rawAccX;
-    int accY = sensorData.rawAccY;
-    int accZ = sensorData.rawAccZ;
+class FocusCalculator extends Calculator {
+  /// Calculates focus based on the last set of session data and the baseline metrics.
+  /// Returns a score between 0.0 (low focus) and 1.0 (high focus).
+  double calculateFocus(
+      List<SessionData> recentData, BaselineMetrics baselineMetrics) {
+    if (recentData.isEmpty) return 0.0;
 
-    // Normalize data ranges and compute a basic focus score
-    double heartRateScore = (heartRate >= 60 && heartRate <= 100) ? 1.0 : 0.5;
-    double movementScore =
-        (accX.abs() < 5 && accY.abs() < 5 && accZ.abs() < 5) ? 1.0 : 0.5;
+    // Calculate deviations from baseline
+    double heartRateDeviation =
+        calculateHeartRateDeviation(recentData, baselineMetrics);
 
-    // Calculate focus score as a weighted average
-    return (heartRateScore * 0.6) + (movementScore * 0.4); // Range: 0.0 to 1.0
+    double movementDeviation = calculateMovementDeviation(
+        recentData, baselineMetrics); // Normalize by 3 axes
+
+    // Score logic: Lower deviation = higher focus
+    double heartRateScore = (heartRateDeviation < 5.0) ? 1.0 : 0.5;
+    double movementScore = (movementDeviation < 5.0) ? 1.0 : 0.5;
+
+    // Weighted average for final score
+    return (heartRateScore * 0.6) + (movementScore * 0.4);
   }
 }
