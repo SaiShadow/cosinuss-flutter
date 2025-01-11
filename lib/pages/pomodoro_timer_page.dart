@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cosinuss/models/data/sensor_data.dart';
 import 'package:cosinuss/models/pomodoro_session_type.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +24,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   static const String _startButtonLabel = 'Start';
   static const String _stopButtonLabel = 'Pause';
   static const String _skipButtonLabel = 'Skip';
+  static const int baselineCalculationTime = 180; // 3min
 
   late Session _currentSession;
 
@@ -30,6 +33,10 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   late final Stopwatch _stopwatch;
   late final Ticker _ticker;
   late int _sessionDuration;
+
+  List<Map<String, dynamic>> _sessionData = [];
+  Map<String, double>? _baselineMetrics; // Store average baseline values
+  bool _isBaselineSet = false;
 
   @override
   void initState() {
@@ -54,13 +61,88 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     });
   }
 
+  void _collectSensorData() {
+    // Append current sensor readings to _sessionData
+    _sessionData.add({
+      "timestamp": DateTime.now(),
+      "heartRate": widget.sensorData.rawHeartRate,
+      "bodyTemperature": widget.sensorData.rawBodyTemperature,
+      "accX": widget.sensorData.rawAccX,
+      "accY": widget.sensorData.rawAccY,
+      "accZ": widget.sensorData.rawAccZ,
+    });
+  }
+
+  void _calculateBaseline() {
+    if (_sessionData.isNotEmpty) {
+      final int count = _sessionData.length;
+
+      final double avgHeartRate = _sessionData
+              .map((data) => data['heartRate'] as double)
+              .reduce((a, b) => a + b) /
+          count;
+
+      final double avgBodyTemperature = _sessionData
+              .map((data) => data['bodyTemperature'] as double)
+              .reduce((a, b) => a + b) /
+          count;
+
+      final double avgAccX = _sessionData
+              .map((data) => data['accX'] as double)
+              .reduce((a, b) => a + b) /
+          count;
+
+      final double avgAccY = _sessionData
+              .map((data) => data['accY'] as double)
+              .reduce((a, b) => a + b) /
+          count;
+
+      final double avgAccZ = _sessionData
+              .map((data) => data['accZ'] as double)
+              .reduce((a, b) => a + b) /
+          count;
+
+      _baselineMetrics = {
+        "heartRate": avgHeartRate,
+        "bodyTemperature": avgBodyTemperature,
+        "accX": avgAccX,
+        "accY": avgAccY,
+        "accZ": avgAccZ,
+      };
+
+      _isBaselineSet = true;
+      print("Baseline Set: $_baselineMetrics");
+    }
+  }
+
   int _getSessionDuration() {
     return _currentSession == Session.work
         ? _pomodoroTimerAmount
         : _shortBreakAmount;
   }
 
+  void _startSensorDataCollection() {
+    Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!_isRunning) {
+        timer.cancel();
+      } else if (!_isBaselineSet &&
+          // 3 minutes of data collected
+          _sessionData.length >= baselineCalculationTime) {
+        _calculateBaseline();
+      } else {
+        _collectSensorData();
+      }
+    });
+  }
+
   void _startTimer() {
+    // Ensure previous data is cleared
+    _sessionData.clear();
+
+    // Start periodic sensor data collection
+    _startSensorDataCollection();
+
+    // Start the main timer
     setState(() {
       _stopwatch.start();
       _ticker.start();
@@ -97,16 +179,6 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     _skipToNextSession();
   }
 
-  // void _resetTimer() {
-  //   _stopTimer();
-  //   setState(() {
-  //     _stopwatch.stop();
-  //     _stopwatch.reset();
-  //     _remainingTime = const Duration(minutes: _pomodoroTimerAmount);
-  //     _isRunning = false;
-  //   });
-  // }
-
   @override
   void dispose() {
     _ticker.dispose(); // Clean up the Ticker
@@ -138,26 +210,6 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     return _currentSession == Session.work
         ? Colors.deepOrange.shade400
         : Colors.lightBlue;
-  }
-
-  Widget _buildSensorData() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          'Heart Rate: ${widget.sensorData.heartRate}\n',
-          style: const TextStyle(color: Colors.white, fontSize: 16),
-        ),
-        Text(
-          'Temperature: ${widget.sensorData.bodyTemperature}\n',
-          style: const TextStyle(color: Colors.white, fontSize: 16),
-        ),
-        Text(
-          'Accelerometer: \n X: ${widget.sensorData.accX} \nY: ${widget.sensorData.accY}\nZ: ${widget.sensorData.accZ}',
-          style: const TextStyle(color: Colors.white, fontSize: 16),
-        ),
-      ],
-    );
   }
 
   String _getTimerLabel() {
@@ -279,6 +331,26 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildSensorData() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'Heart Rate: ${widget.sensorData.heartRate}\n',
+          style: const TextStyle(color: Colors.white, fontSize: 16),
+        ),
+        Text(
+          'Temperature: ${widget.sensorData.bodyTemperature}\n',
+          style: const TextStyle(color: Colors.white, fontSize: 16),
+        ),
+        Text(
+          'Accelerometer: \n X: ${widget.sensorData.accX} \nY: ${widget.sensorData.accY}\nZ: ${widget.sensorData.accZ}',
+          style: const TextStyle(color: Colors.white, fontSize: 16),
+        ),
+      ],
     );
   }
 }
