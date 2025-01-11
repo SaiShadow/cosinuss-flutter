@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:cosinuss/models/data/baseline_metrics.dart';
 import 'package:cosinuss/models/data/sensor_data.dart';
 import 'package:cosinuss/models/data/session_data.dart';
@@ -76,10 +77,14 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   final StressCalculator _stressCalculator = StressCalculator();
   final FocusCalculator _focusCalculator = FocusCalculator();
 
+  // Sound for when session ends
+  late final AudioPlayer _audioPlayer;
+
   @override
   void initState() {
     super.initState();
 
+    _audioPlayer = AudioPlayer();
     _currentSession = Session.work;
     _sessionDuration = _getSessionDuration();
     _remainingTime = Duration(minutes: _sessionDuration);
@@ -320,11 +325,20 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   }
 
   void _completeTimer() {
-    _updateBaselineAtSessionEnd(); // Dynamically update baseline at the end of the session
+    _playSound(); // Play the sound when the timer ends
+    _updateUserBaselineMeasurement(); // Dynamically update baseline at the end of the session
     _skipToNextSession();
   }
 
-  void _updateBaselineAtSessionEnd() {
+  void _playSound() async {
+    try {
+      await _audioPlayer.play(AssetSource('sounds/timer_end.mp3'));
+    } catch (e) {
+      debugPrint("Error playing sound: $e");
+    }
+  }
+
+  void _updateUserBaselineMeasurement() {
     if (_sessionData.isNotEmpty && _isBaselineSet) {
       final updatedMetrics = BaselineMetrics.fromSessionData(_sessionData);
 
@@ -339,7 +353,8 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
 
   @override
   void dispose() {
-    _ticker.dispose(); // Clean up the Ticker
+    _audioPlayer.dispose();
+    _ticker.dispose();
     super.dispose();
   }
 
