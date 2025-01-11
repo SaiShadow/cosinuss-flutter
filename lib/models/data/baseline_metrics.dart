@@ -43,4 +43,21 @@ class BaselineMetrics {
       averageAccZ: avgAccZ,
     );
   }
+
+  /// Update baseline metrics dynamically with a weighted average
+  BaselineMetrics updateWith(BaselineMetrics newMetrics,
+      {double currentWeight = 0.8, double newWeight = 0.2}) {
+    return BaselineMetrics(
+      averageHeartRate: (averageHeartRate * currentWeight) +
+          (newMetrics.averageHeartRate * newWeight),
+      averageBodyTemperature: (averageBodyTemperature * currentWeight) +
+          (newMetrics.averageBodyTemperature * newWeight),
+      averageAccX:
+          (averageAccX * currentWeight) + (newMetrics.averageAccX * newWeight),
+      averageAccY:
+          (averageAccY * currentWeight) + (newMetrics.averageAccY * newWeight),
+      averageAccZ:
+          (averageAccZ * currentWeight) + (newMetrics.averageAccZ * newWeight),
+    );
+  }
 }

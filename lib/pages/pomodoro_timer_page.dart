@@ -30,7 +30,6 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   static const String _skipButtonLabel = 'Skip';
 
   // Times
-  static const int baselineCalculationTime = 180; // 3min
   static const int periodicFocusAndStressCalculationTime = 60;
   static const int _breakExtensionTime = 2; // 2min
   static const int _focusExtensionTime = 5; // 5min
@@ -57,7 +56,10 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   final List<Map<String, dynamic>> _focusData = [];
   // Stress values with timestamps
   final List<Map<String, dynamic>> _stressData = [];
+
   // Store user's average baseline values
+  static const int baselineCalculationTime =
+      180; // 3min, but could increase to 5min if needed
   BaselineMetrics? _baselineMetrics;
   bool _isBaselineSet = false;
 
@@ -201,7 +203,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     if (_sessionDuration > 10) {
       // Minimum work duration threshold
       setState(() {
-        _sessionDuration -= _focusReductionTime;
+        _sessionDuration -= _focusReductionTime; // Reduce work by 5 minutes
         _remainingTime =
             Duration(minutes: _sessionDuration) - _stopwatch.elapsed;
         print("Work time reduced to $_sessionDuration minutes");
@@ -220,12 +222,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     if (_sessionData.isNotEmpty) {
       _baselineMetrics = BaselineMetrics.fromSessionData(_sessionData);
       _isBaselineSet = true;
-      print("User baseline Metrics Set: "
-          "HeartRate=${_baselineMetrics!.averageHeartRate}, "
-          "Temperature=${_baselineMetrics!.averageBodyTemperature}, "
-          "AccX=${_baselineMetrics!.averageAccX}, "
-          "AccY=${_baselineMetrics!.averageAccY}, "
-          "AccZ=${_baselineMetrics!.averageAccZ}");
+      print("Initial Baseline Set: $_baselineMetrics");
     }
   }
 
@@ -303,7 +300,21 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   }
 
   void _completeTimer() {
+    _updateBaselineAtSessionEnd(); // Dynamically update baseline at the end of the session
     _skipToNextSession();
+  }
+
+  void _updateBaselineAtSessionEnd() {
+    if (_sessionData.isNotEmpty && _isBaselineSet) {
+      final updatedMetrics = BaselineMetrics.fromSessionData(_sessionData);
+
+      setState(() {
+        // Update baseline metrics dynamically using the new method
+        _baselineMetrics = _baselineMetrics!.updateWith(updatedMetrics);
+      });
+
+      print("Baseline dynamically updated: $_baselineMetrics");
+    }
   }
 
   @override
