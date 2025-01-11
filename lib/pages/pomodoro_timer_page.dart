@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:cosinuss/models/data/baseline_metrics.dart';
 import 'package:cosinuss/models/data/sensor_data.dart';
+import 'package:cosinuss/models/data/session_data.dart';
 import 'package:cosinuss/models/pomodoro_session_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -34,8 +36,8 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   late final Ticker _ticker;
   late int _sessionDuration;
 
-  List<Map<String, dynamic>> _sessionData = [];
-  Map<String, double>? _baselineMetrics; // Store average baseline values
+  final List<SessionData> _sessionData = [];
+  BaselineMetrics? _baselineMetrics; // Store user's average baseline values
   bool _isBaselineSet = false;
 
   @override
@@ -61,57 +63,21 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     });
   }
 
+  // Append current sensor readings to _sessionData
   void _collectSensorData() {
-    // Append current sensor readings to _sessionData
-    _sessionData.add({
-      "timestamp": DateTime.now(),
-      "heartRate": widget.sensorData.rawHeartRate,
-      "bodyTemperature": widget.sensorData.rawBodyTemperature,
-      "accX": widget.sensorData.rawAccX,
-      "accY": widget.sensorData.rawAccY,
-      "accZ": widget.sensorData.rawAccZ,
-    });
+    _sessionData.add(SessionData.fromSensorData(widget.sensorData));
   }
 
   void _calculateBaseline() {
     if (_sessionData.isNotEmpty) {
-      final int count = _sessionData.length;
-
-      final double avgHeartRate = _sessionData
-              .map((data) => data['heartRate'] as double)
-              .reduce((a, b) => a + b) /
-          count;
-
-      final double avgBodyTemperature = _sessionData
-              .map((data) => data['bodyTemperature'] as double)
-              .reduce((a, b) => a + b) /
-          count;
-
-      final double avgAccX = _sessionData
-              .map((data) => data['accX'] as double)
-              .reduce((a, b) => a + b) /
-          count;
-
-      final double avgAccY = _sessionData
-              .map((data) => data['accY'] as double)
-              .reduce((a, b) => a + b) /
-          count;
-
-      final double avgAccZ = _sessionData
-              .map((data) => data['accZ'] as double)
-              .reduce((a, b) => a + b) /
-          count;
-
-      _baselineMetrics = {
-        "heartRate": avgHeartRate,
-        "bodyTemperature": avgBodyTemperature,
-        "accX": avgAccX,
-        "accY": avgAccY,
-        "accZ": avgAccZ,
-      };
-
+      _baselineMetrics = BaselineMetrics.fromSessionData(_sessionData);
       _isBaselineSet = true;
-      print("Baseline Set: $_baselineMetrics");
+      print("User baseline Metrics Set: "
+          "HeartRate=${_baselineMetrics!.averageHeartRate}, "
+          "Temperature=${_baselineMetrics!.averageBodyTemperature}, "
+          "AccX=${_baselineMetrics!.averageAccX}, "
+          "AccY=${_baselineMetrics!.averageAccY}, "
+          "AccZ=${_baselineMetrics!.averageAccZ}");
     }
   }
 
