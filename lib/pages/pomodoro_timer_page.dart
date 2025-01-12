@@ -17,6 +17,7 @@ class PomodoroTimerPage extends StatefulWidget {
   final Function(List<SessionData>) onSessionDataUpdate;
   final Function(List<Map<String, dynamic>>) onFocusDataUpdate;
   final Function(List<Map<String, dynamic>>) onStressDataUpdate;
+  final Function(Color) onUpdateNavBarColor;
 
   const PomodoroTimerPage({
     Key? key,
@@ -24,6 +25,7 @@ class PomodoroTimerPage extends StatefulWidget {
     required this.onSessionDataUpdate,
     required this.onFocusDataUpdate,
     required this.onStressDataUpdate,
+    required this.onUpdateNavBarColor,
   }) : super(key: key);
 
   @override
@@ -313,6 +315,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
       _ticker.start();
       _isRunning = true;
     });
+    _updateNavBarColor();
   }
 
   void _stopTimer() {
@@ -321,6 +324,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
       _ticker.stop();
       _isRunning = false;
     });
+    _updateNavBarColor();
   }
 
   void _skipToNextSession() {
@@ -338,6 +342,8 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
       _remainingTime =
           Duration(minutes: _sessionDuration); // Reset remaining time
     });
+
+    _updateNavBarColor();
   }
 
   void _completeTimer() {
@@ -382,6 +388,14 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     final minutes = duration.inMinutes.toString().padLeft(2, '0');
     final seconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
     return '$minutes:$seconds';
+  }
+
+  void _updateNavBarColor() {
+    Color newColor = _isRunning
+        ? Colors.black // Dark mode when running
+        : (_currentSession == Session.work ? Colors.deepOrange : Colors.blue);
+
+    widget.onUpdateNavBarColor(newColor);
   }
 
   Color _getPageBackgroundColor() {
