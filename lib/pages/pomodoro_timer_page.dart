@@ -111,6 +111,12 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     });
   }
 
+  double _calculateProgress() {
+    final totalSeconds = _sessionDuration * 60;
+    final elapsedSeconds = totalSeconds - _remainingTime.inSeconds;
+    return elapsedSeconds / totalSeconds;
+  }
+
   // Append current sensor readings to _sessionData
   void _collectSensorData() {
     // Collect sensor data
@@ -482,6 +488,16 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                           ),
                         ),
                       ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  LinearProgressIndicator(
+                    value: _calculateProgress(),
+                    backgroundColor: Colors.grey.shade300,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      _currentSession == Session.work
+                          ? Colors.green
+                          : Colors.blue,
                     ),
                   ),
                   const SizedBox(height: 15),
