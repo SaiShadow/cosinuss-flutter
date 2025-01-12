@@ -99,8 +99,10 @@ class _MainPageState extends State<MainPage> {
       // Conditionally include the AppBar only for the home page.
       appBar: _currentPageIndex == 0
           ? AppBar(
-              title:
-                  Text(widget.title), // Show the title only for the home page
+              title: Text(widget.title,
+                  style: const TextStyle(
+                      // fontWeight: FontWeight.bold,
+                      fontSize: 29)), // Show the title only for the home page
             )
           : null, // No AppBar for other pagesx
       body: IndexedStack(

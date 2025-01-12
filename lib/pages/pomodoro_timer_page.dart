@@ -411,7 +411,6 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // Only show when not running
         title: _isRunning
             ? null
             : const Text(
@@ -451,8 +450,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                           _getTimerLabel(),
                           style: TextStyle(
                             fontSize: 20,
-                            color:
-                                Colors.white.withOpacity(0.8), // Adjust opacity
+                            color: Colors.white.withOpacity(0.8),
                           ),
                         ),
                         const SizedBox(height: 10),
@@ -514,40 +512,42 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  // Mode Toggle Buttons
+                  // Focus Mode Toggle
                   if (!_isRunning)
                     ToggleButtons(
                       isSelected: [
                         _selectedFocusMode == FocusMode.extremeFocus,
                         _selectedFocusMode == FocusMode.lowStress,
                       ],
-                      onPressed: (int index) {
+                      onPressed: (index) {
                         setState(() {
-                          _selectedFocusMode = FocusMode.values[index];
-                          print("Focus Mode changed to $_selectedFocusMode");
+                          _selectedFocusMode = index == 0
+                              ? FocusMode.extremeFocus
+                              : FocusMode.lowStress;
                         });
                       },
-                      color: Colors.grey, // Default color
-                      fillColor: Colors.lightBlueAccent, // Color for low stress
+                      borderRadius: BorderRadius.circular(10),
+                      selectedColor: Colors.white,
+                      fillColor: _currentSession == Session.work
+                          ? Colors.blue
+                          : Colors.red,
+                      color: Colors.white,
+                      selectedBorderColor: Colors.black,
                       children: const [
                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 16.0, vertical: 8.0),
                           child: Text(
-                            'Extreme Focus',
-                            style: TextStyle(
-                              // fontSize: 18,
-                              color: Colors.white,
-                            ),
+                            "Extreme Focus",
+                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 16.0, vertical: 8.0),
                           child: Text(
-                            'Low Stress',
-                            style: TextStyle(
-                              // fontSize: 18,
-                              color: Colors.white,
-                            ),
+                            "Low Stress",
+                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
                       ],
