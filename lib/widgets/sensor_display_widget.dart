@@ -42,7 +42,8 @@ class SensorDataWidget extends StatelessWidget {
 
   Widget _buildDataSection(String title, String value, IconData icon) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize
+          .min, // Ensure the Row content takes up only as much space as needed
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Icon(
@@ -51,21 +52,30 @@ class SensorDataWidget extends StatelessWidget {
           size: 20,
         ),
         const SizedBox(width: 8),
-        Text(
-          "$title: ",
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500, // Semi-bold but not too heavy
-            color: Colors.white70, // Soft white to reduce visual weight
-          ),
-        ),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w400, // Normal font weight
-            color: Colors.white, // Slightly brighter for values
-          ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  "$title: ",
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500, // Semi-bold
+                    color: Colors.white70, // Soft white
+                  ),
+                ),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400, // Normal
+                    color: Colors.white, // Bright white for values
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ],
     );
