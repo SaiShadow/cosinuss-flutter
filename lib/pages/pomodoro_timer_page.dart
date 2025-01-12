@@ -489,24 +489,36 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                       fillColor: _currentSession == Session.work
                           ? Colors.blue
                           : Colors.red,
-                      color: Colors.white,
+                      color: Colors.white54,
                       selectedBorderColor: Colors.black,
+                      constraints: const BoxConstraints(
+                        minWidth: 150, // Set fixed width for equal size
+                        minHeight: 50, // Set fixed height for equal size
+                      ),
                       children: const [
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 16.0, vertical: 8.0),
-                          child: Text(
-                            "Extreme Focus",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.bolt, size: 20, color: Colors.white),
+                            SizedBox(height: 4),
+                            Text(
+                              "Extreme Focus",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 12),
+                            ),
+                          ],
                         ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 16.0, vertical: 8.0),
-                          child: Text(
-                            "Low Stress",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.spa, size: 20, color: Colors.white),
+                            SizedBox(height: 4),
+                            Text(
+                              "Low Stress",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 12),
+                            ),
+                          ],
                         ),
                       ],
                     ),
