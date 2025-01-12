@@ -349,6 +349,10 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   void _playSound() async {
     try {
       await _audioPlayer.play(AssetSource('sounds/timer_end.mp3'));
+
+      await Future.delayed(const Duration(seconds: 1));
+
+      await _audioPlayer.play(AssetSource('sounds/timer_end.mp3'));
     } catch (e) {
       debugPrint("Error playing sound: $e");
     }
@@ -465,53 +469,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 40),
-                  // Buttons
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          if (_isRunning) {
-                            _stopTimer();
-                          } else {
-                            _startTimer();
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              _isRunning ? Colors.red : Colors.green,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 30, vertical: 10),
-                        ),
-                        child: Text(
-                          _isRunning ? _stopButtonLabel : _startButtonLabel,
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white.withOpacity(0.9),
-                          ),
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: _skipToNextSession,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _isRunning
-                              ? Colors.blueGrey.shade900
-                              : Colors.blueGrey,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 30, vertical: 10),
-                        ),
-                        child: const Text(
-                          _skipButtonLabel,
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 15),
                   // Focus Mode Toggle
                   if (!_isRunning)
                     ToggleButtons(
@@ -531,27 +489,88 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                       fillColor: _currentSession == Session.work
                           ? Colors.blue
                           : Colors.red,
-                      color: Colors.white,
+                      color: Colors.white54,
                       selectedBorderColor: Colors.black,
+                      constraints: const BoxConstraints(
+                        minWidth: 150, // Set fixed width for equal size
+                        minHeight: 50, // Set fixed height for equal size
+                      ),
                       children: const [
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 16.0, vertical: 8.0),
-                          child: Text(
-                            "Extreme Focus",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.bolt, size: 20, color: Colors.white),
+                            SizedBox(height: 4),
+                            Text(
+                              "Extreme Focus",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 12),
+                            ),
+                          ],
                         ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 16.0, vertical: 8.0),
-                          child: Text(
-                            "Low Stress",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.spa, size: 20, color: Colors.white),
+                            SizedBox(height: 4),
+                            Text(
+                              "Low Stress",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 12),
+                            ),
+                          ],
                         ),
                       ],
                     ),
+                  const SizedBox(
+                      height: 30), // Reduced space between timer and buttons
+
+                  // Buttons Section
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          if (_isRunning) {
+                            _stopTimer();
+                          } else {
+                            _startTimer();
+                          }
+                        },
+                        icon: Icon(_isRunning ? Icons.pause : Icons.play_arrow),
+                        label: Text(
+                          _isRunning ? _stopButtonLabel : _startButtonLabel,
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.9),
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              _isRunning ? Colors.red : Colors.green,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 30, vertical: 10),
+                        ),
+                      ),
+                      const SizedBox(width: 40), // Space between buttons
+                      ElevatedButton.icon(
+                        onPressed: _skipToNextSession,
+                        icon: const Icon(Icons.skip_next),
+                        label: Text(
+                          _skipButtonLabel,
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.9),
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _isRunning
+                              ? Colors.blueGrey.shade900
+                              : Colors.blueGrey,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 30, vertical: 10),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),

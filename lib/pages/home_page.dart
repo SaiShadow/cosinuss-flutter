@@ -30,7 +30,8 @@ class _HomePageState extends State<HomePage> {
     widget.bluetoothManager.connect();
   }
 
-  Widget _buildSensorStatusRow(String label, String value, [String? status]) {
+  Widget _buildSensorStatusRow(String label, String value,
+      [String? status, IconData? icon]) {
     bool isValid = value != widget.sensorData.defaultSensorValue &&
         widget.sensorData.isConnected;
 
@@ -41,9 +42,18 @@ class _HomePageState extends State<HomePage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          Row(
+            children: [
+              if (icon != null) ...[
+                Icon(icon, color: Colors.black, size: 20),
+                const SizedBox(width: 8), // Add spacing between icon and text
+              ],
+              Text(
+                label,
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              ),
+            ],
           ),
           Row(
             children: [
@@ -98,102 +108,111 @@ class _HomePageState extends State<HomePage> {
         // backgroundColor: consistentColor,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Device Status",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: consistentColor,
-              ),
-            ),
-            const SizedBox(height: 20),
-            _buildSensorStatusRow(
-              "Connection Status",
-              widget.sensorData.connectionStatus,
-              widget.sensorData.connectionStatus,
-            ),
-            const Divider(),
-            Text(
-              "Vital Signs",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: consistentColor,
-              ),
-            ),
-            _buildSensorStatusRow(
-              "Heart Rate",
-              widget.sensorData.heartRate,
-            ),
-            _buildSensorStatusRow(
-              "Body Temperature",
-              widget.sensorData.bodyTemperature,
-            ),
-            const Divider(),
-            Text(
-              "Motion Data",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: consistentColor,
-              ),
-            ),
-            _buildSensorStatusRow(
-              "Accelerometer X",
-              widget.sensorData.accX,
-            ),
-            _buildSensorStatusRow(
-              "Accelerometer Y",
-              widget.sensorData.accY,
-            ),
-            _buildSensorStatusRow(
-              "Accelerometer Z",
-              widget.sensorData.accZ,
-            ),
-            const Divider(),
-            Text(
-              "PPG Data",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: consistentColor,
-              ),
-            ),
-            _buildSensorStatusRow(
-              "PPG Raw Red",
-              widget.sensorData.ppgRed,
-            ),
-            _buildSensorStatusRow(
-              "PPG Raw Green",
-              widget.sensorData.ppgGreen,
-            ),
-            _buildSensorStatusRow(
-              "PPG Ambient",
-              widget.sensorData.ppgAmbient,
-            ),
-            const SizedBox(height: 20),
-            const ExpansionTile(
-              title: Text(
-                "Notes & Instructions",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              children: [
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text(
-                    "- Insert the earbud in your ear to receive heart rate values.",
-                    style: TextStyle(fontSize: 14),
-                  ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Device Status",
+                style: TextStyle(
+                  fontSize: 19,
+                  fontWeight: FontWeight.bold,
+                  color: consistentColor,
                 ),
-              ],
-            ),
-          ],
-        ),
-      ),
+              ),
+              _buildSensorStatusRow(
+                "Connection Status",
+                widget.sensorData.connectionStatus,
+                widget.sensorData.connectionStatus,
+                Icons.bluetooth, // Add an icon for connection status
+              ),
+              const Divider(),
+              Text(
+                "Vital Signs",
+                style: TextStyle(
+                  fontSize: 19,
+                  fontWeight: FontWeight.bold,
+                  color: consistentColor,
+                ),
+              ),
+              _buildSensorStatusRow(
+                "Heart Rate",
+                widget.sensorData.heartRate,
+                null,
+                Icons.favorite,
+              ),
+              _buildSensorStatusRow(
+                "Body Temperature",
+                widget.sensorData.bodyTemperature,
+                null,
+                Icons.thermostat,
+              ),
+              const Divider(),
+              Text(
+                "Motion Data",
+                style: TextStyle(
+                  fontSize: 19,
+                  fontWeight: FontWeight.bold,
+                  color: consistentColor,
+                ),
+              ),
+              _buildSensorStatusRow(
+                "Accelerometer X",
+                widget.sensorData.accX,
+                null,
+                Icons.directions_run_sharp,
+              ),
+              _buildSensorStatusRow(
+                "Accelerometer Y",
+                widget.sensorData.accY,
+                null,
+                Icons.directions_run_sharp,
+              ),
+              _buildSensorStatusRow(
+                "Accelerometer Z",
+                widget.sensorData.accZ,
+                null,
+                Icons.directions_run_sharp,
+              ),
+              // const Divider(),
+              // Text(
+              //   "PPG Data",
+              //   style: TextStyle(
+              //     fontSize: 19,
+              //     fontWeight: FontWeight.bold,
+              //     color: consistentColor,
+              //   ),
+              // ),
+              // _buildSensorStatusRow(
+              //   "PPG Raw Red",
+              //   widget.sensorData.ppgRed,
+              // ),
+              // _buildSensorStatusRow(
+              //   "PPG Raw Green",
+              //   widget.sensorData.ppgGreen,
+              // ),
+              // _buildSensorStatusRow(
+              //   "PPG Ambient",
+              //   widget.sensorData.ppgAmbient,
+              // ),
+              const SizedBox(height: 20),
+              const ExpansionTile(
+                title: Text(
+                  "Notes & Instructions",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                children: [
+                  Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      "- Insert the earbud in your ear to receive heart rate values.",
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          )),
       floatingActionButton: Visibility(
         visible: !_isConnecting,
         child: FloatingActionButton(
