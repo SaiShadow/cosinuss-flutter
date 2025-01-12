@@ -51,7 +51,7 @@ class _HomePageState extends State<HomePage> {
               Text(
                 label,
                 style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -115,7 +115,7 @@ class _HomePageState extends State<HomePage> {
               Text(
                 "Device Status",
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 19,
                   fontWeight: FontWeight.bold,
                   color: consistentColor,
                 ),
@@ -130,7 +130,7 @@ class _HomePageState extends State<HomePage> {
               Text(
                 "Vital Signs",
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 19,
                   fontWeight: FontWeight.bold,
                   color: consistentColor,
                 ),
@@ -151,7 +151,7 @@ class _HomePageState extends State<HomePage> {
               Text(
                 "Motion Data",
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 19,
                   fontWeight: FontWeight.bold,
                   color: consistentColor,
                 ),
@@ -174,27 +174,27 @@ class _HomePageState extends State<HomePage> {
                 null,
                 Icons.directions_run_sharp,
               ),
-              const Divider(),
-              Text(
-                "PPG Data",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: consistentColor,
-                ),
-              ),
-              _buildSensorStatusRow(
-                "PPG Raw Red",
-                widget.sensorData.ppgRed,
-              ),
-              _buildSensorStatusRow(
-                "PPG Raw Green",
-                widget.sensorData.ppgGreen,
-              ),
-              _buildSensorStatusRow(
-                "PPG Ambient",
-                widget.sensorData.ppgAmbient,
-              ),
+              // const Divider(),
+              // Text(
+              //   "PPG Data",
+              //   style: TextStyle(
+              //     fontSize: 19,
+              //     fontWeight: FontWeight.bold,
+              //     color: consistentColor,
+              //   ),
+              // ),
+              // _buildSensorStatusRow(
+              //   "PPG Raw Red",
+              //   widget.sensorData.ppgRed,
+              // ),
+              // _buildSensorStatusRow(
+              //   "PPG Raw Green",
+              //   widget.sensorData.ppgGreen,
+              // ),
+              // _buildSensorStatusRow(
+              //   "PPG Ambient",
+              //   widget.sensorData.ppgAmbient,
+              // ),
               const SizedBox(height: 20),
               const ExpansionTile(
                 title: Text(
