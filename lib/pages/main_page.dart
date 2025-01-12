@@ -25,6 +25,21 @@ class _MainPageState extends State<MainPage> {
   List<Map<String, dynamic>> _focusData = [];
   List<Map<String, dynamic>> _stressData = [];
 
+  // bool _isPomodoroRunning = false;
+  Color _pomodoroColor = Colors.deepOrange;
+
+  // void _updatePomodoroRunningStatus(bool isRunning) {
+  //   setState(() {
+  //     _isPomodoroRunning = isRunning;
+  //   });
+  // }
+
+  void _updateNavBarColor(Color newColor) {
+    setState(() {
+      _pomodoroColor = newColor;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -118,6 +133,7 @@ class _MainPageState extends State<MainPage> {
             onSessionDataUpdate: _updateSessionData,
             onFocusDataUpdate: _updateFocusData,
             onStressDataUpdate: _updateStressData,
+            onUpdateNavBarColor: _updateNavBarColor,
           ),
           GraphPage(
             sessionData: _sessionData,
@@ -128,6 +144,14 @@ class _MainPageState extends State<MainPage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentPageIndex,
+        backgroundColor: _currentPageIndex == 1
+            ? _pomodoroColor // Use dynamic Pomodoro color for Pomodoro Timer Page
+            : null, // Default color for other pages
+        fixedColor: _currentPageIndex == 1
+            ? Colors.white // Use dynamic Pomodoro color for Pomodoro Timer Page
+            : null,
+        unselectedItemColor:
+            _pomodoroColor == Colors.black ? Colors.blueGrey : null,
         onTap: (index) {
           setState(() {
             _currentPageIndex = index;
