@@ -111,6 +111,12 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     });
   }
 
+  double _calculateProgress() {
+    final totalSeconds = _sessionDuration * 60;
+    final elapsedSeconds = totalSeconds - _remainingTime.inSeconds;
+    return elapsedSeconds / totalSeconds;
+  }
+
   // Append current sensor readings to _sessionData
   void _collectSensorData() {
     // Collect sensor data
@@ -392,11 +398,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   }
 
   void _updateNavBarColor() {
-    Color newColor = _isRunning
-        ? Colors.black // Dark mode when running
-        : (_currentSession == Session.work ? Colors.deepOrange : Colors.blue);
-
-    widget.onUpdateNavBarColor(newColor);
+    widget.onUpdateNavBarColor(_getPageBackgroundColor());
   }
 
   Color _getPageBackgroundColor() {
@@ -484,7 +486,21 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 10),
+                  LinearProgressIndicator(
+                    value: _calculateProgress(),
+                    backgroundColor: Colors.grey.shade300,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      _currentSession == Session.work
+                          ? Colors.green
+                          : Colors.blue,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // Sensor Data Section
+                  _buildSensorData(),
+                  const SizedBox(height: 30),
+
                   // Focus Mode Toggle
                   if (!_isRunning)
                     ToggleButtons(
@@ -526,7 +542,8 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                         Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.spa, size: 20, color: Colors.white),
+                            Icon(Icons.self_improvement_sharp,
+                                size: 20, color: Colors.white),
                             SizedBox(height: 4),
                             Text(
                               "Low Stress",
@@ -538,13 +555,13 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                       ],
                     ),
                   const SizedBox(
-                      height: 30), // Reduced space between timer and buttons
+                      height: 35), // Reduced space between timer and buttons
 
                   // Buttons Section
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      ElevatedButton.icon(
+                      ElevatedButton(
                         onPressed: () {
                           if (_isRunning) {
                             _stopTimer();
@@ -552,36 +569,69 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                             _startTimer();
                           }
                         },
-                        icon: Icon(_isRunning ? Icons.pause : Icons.play_arrow),
-                        label: Text(
-                          _isRunning ? _stopButtonLabel : _startButtonLabel,
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
-                          ),
-                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor:
                               _isRunning ? Colors.red : Colors.green,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 30, vertical: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          padding: _isRunning
+                              ? const EdgeInsets.symmetric(
+                                  horizontal: 25, vertical: 15)
+                              : const EdgeInsets.symmetric(
+                                  horizontal: 40, vertical: 25),
+                          elevation: 4,
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              _isRunning ? Icons.pause : Icons.play_arrow,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              _isRunning ? _stopButtonLabel : _startButtonLabel,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(width: 40), // Space between buttons
-                      ElevatedButton.icon(
+                      ElevatedButton(
                         onPressed: _skipToNextSession,
-                        icon: const Icon(Icons.skip_next),
-                        label: Text(
-                          _skipButtonLabel,
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
-                          ),
-                        ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: _isRunning
-                              ? Colors.blueGrey.shade900
-                              : Colors.blueGrey,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 30, vertical: 10),
+                          backgroundColor: Colors.blueGrey,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          padding: _isRunning
+                              ? const EdgeInsets.symmetric(
+                                  horizontal: 25, vertical: 15)
+                              : const EdgeInsets.symmetric(
+                                  horizontal: 40, vertical: 25),
+                          elevation: 4,
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(
+                              Icons.skip_next,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              _skipButtonLabel,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -589,9 +639,6 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                 ],
               ),
             ),
-            const SizedBox(height: 20),
-            // Sensor Data Section
-            _buildSensorData(),
           ],
         ),
       ),
