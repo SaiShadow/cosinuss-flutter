@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const MainPage(title: 'Cosinuss° One - Demo'),
+      home: const MainPage(title: 'FocusFlow'),
       debugShowCheckedModeBanner: false, // Disables the debug banner.
     );
   }
