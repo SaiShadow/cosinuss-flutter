@@ -8,6 +8,7 @@ import 'package:cosinuss/models/logic/focus_calculator.dart';
 import 'package:cosinuss/models/logic/stress_calculator.dart';
 import 'package:cosinuss/models/pomodoro_focus_modes.dart';
 import 'package:cosinuss/models/pomodoro_session_type.dart';
+import 'package:cosinuss/widgets/sensor_display_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -52,8 +53,8 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   static const double highValue = 0.7;
   static const double mediumValue = 0.4;
 
-  String _currentFocusLevel = "Unknown";
-  String _currentStressLevel = "Unknown";
+  String _currentFocusLevel = "Calculating...";
+  String _currentStressLevel = "Calculating...";
 
   late Session _currentSession;
 
@@ -598,31 +599,11 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   }
 
   Widget _buildSensorData() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          'Focus Level: $_currentFocusLevel',
-          style: const TextStyle(color: Colors.white, fontSize: 16),
-        ),
-        Text(
-          'Stress Level: $_currentStressLevel',
-          style: const TextStyle(color: Colors.white, fontSize: 16),
-        ),
-        const SizedBox(height: 20), // Add some spacing
-        Text(
-          'Heart Rate: ${widget.sensorData.heartRate}',
-          style: const TextStyle(color: Colors.white, fontSize: 16),
-        ),
-        Text(
-          'Temperature: ${widget.sensorData.bodyTemperature}',
-          style: const TextStyle(color: Colors.white, fontSize: 16),
-        ),
-        Text(
-          'Accelerometer: \n X: ${widget.sensorData.accX} \nY: ${widget.sensorData.accY}\nZ: ${widget.sensorData.accZ}',
-          style: const TextStyle(color: Colors.white, fontSize: 16),
-        ),
-      ],
+    return SensorDataWidget(
+      focusLevel: _currentFocusLevel,
+      stressLevel: _currentStressLevel,
+      heartRate: widget.sensorData.heartRate.toString(),
+      temperature: widget.sensorData.bodyTemperature.toString(),
     );
   }
 }
