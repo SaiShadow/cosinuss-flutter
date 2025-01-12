@@ -349,6 +349,10 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   void _playSound() async {
     try {
       await _audioPlayer.play(AssetSource('sounds/timer_end.mp3'));
+
+      await Future.delayed(const Duration(seconds: 1));
+
+      await _audioPlayer.play(AssetSource('sounds/timer_end.mp3'));
     } catch (e) {
       debugPrint("Error playing sound: $e");
     }
@@ -465,10 +469,11 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 40),
-                  // Buttons
+                  const SizedBox(
+                      height: 30), // Reduced space between timer and buttons
+                  // Buttons Section
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ElevatedButton.icon(
                         onPressed: () {
@@ -492,6 +497,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                               horizontal: 30, vertical: 10),
                         ),
                       ),
+                      const SizedBox(width: 40), // Space between buttons
                       ElevatedButton.icon(
                         onPressed: _skipToNextSession,
                         icon: const Icon(Icons.skip_next),
