@@ -470,7 +470,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      ElevatedButton(
+                      ElevatedButton.icon(
                         onPressed: () {
                           if (_isRunning) {
                             _stopTimer();
@@ -478,35 +478,35 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                             _startTimer();
                           }
                         },
+                        icon: Icon(_isRunning ? Icons.pause : Icons.play_arrow),
+                        label: Text(
+                          _isRunning ? _stopButtonLabel : _startButtonLabel,
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.9),
+                          ),
+                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor:
                               _isRunning ? Colors.red : Colors.green,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 30, vertical: 10),
                         ),
-                        child: Text(
-                          _isRunning ? _stopButtonLabel : _startButtonLabel,
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: _skipToNextSession,
+                        icon: const Icon(Icons.skip_next),
+                        label: Text(
+                          _skipButtonLabel,
                           style: TextStyle(
-                            fontSize: 18,
                             color: Colors.white.withOpacity(0.9),
                           ),
                         ),
-                      ),
-                      ElevatedButton(
-                        onPressed: _skipToNextSession,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: _isRunning
                               ? Colors.blueGrey.shade900
                               : Colors.blueGrey,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 30, vertical: 10),
-                        ),
-                        child: const Text(
-                          _skipButtonLabel,
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                          ),
                         ),
                       ),
                     ],
