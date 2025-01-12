@@ -205,7 +205,7 @@ class _HomePageState extends State<HomePage> {
                   Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text(
-                      "- Insert the earbud in your ear to receive heart rate values.",
+                      infoText,
                       style: TextStyle(fontSize: 14),
                     ),
                   ),
@@ -224,4 +224,9 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+  static const String infoText =
+      "- Insert the earbud in your ear to receive heart rate values.\n"
+      "- It takes about 3-5min for the app to calculate your own personal baseline metrics for a unique focus and stress calculation based on your personal qualities.\n"
+      "- So please be patient for the first 5min of the Pomodoro Session start";
 }
