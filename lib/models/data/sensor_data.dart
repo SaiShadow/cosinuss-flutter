@@ -2,8 +2,9 @@ import 'dart:typed_data';
 
 class SensorData {
   bool _isConnected = false;
-  String _connectionStatus = "Disconnected";
+  String _connectionStatus = _defaultConnectionStatus;
   static const String _defaultSensorValue = "-";
+  static const String _defaultConnectionStatus = "Not Connected";
   String get defaultSensorValue => _defaultSensorValue;
 
   int _heartRate = 0;
@@ -58,7 +59,7 @@ class SensorData {
 
   void updateConnectionStatus(bool status) {
     _isConnected = status;
-    _connectionStatus = (_isConnected) ? "Connected" : "Disconnected";
+    _connectionStatus = (_isConnected) ? "Connected" : _defaultConnectionStatus;
   }
 
   void updateHeartRate(rawData) {
