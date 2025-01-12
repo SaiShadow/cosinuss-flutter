@@ -1,0 +1,1 @@
+enum FocusMode { extremeFocus, lowStress }
