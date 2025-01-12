@@ -469,8 +469,50 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 15),
+                  // Focus Mode Toggle
+                  if (!_isRunning)
+                    ToggleButtons(
+                      isSelected: [
+                        _selectedFocusMode == FocusMode.extremeFocus,
+                        _selectedFocusMode == FocusMode.lowStress,
+                      ],
+                      onPressed: (index) {
+                        setState(() {
+                          _selectedFocusMode = index == 0
+                              ? FocusMode.extremeFocus
+                              : FocusMode.lowStress;
+                        });
+                      },
+                      borderRadius: BorderRadius.circular(10),
+                      selectedColor: Colors.white,
+                      fillColor: _currentSession == Session.work
+                          ? Colors.blue
+                          : Colors.red,
+                      color: Colors.white,
+                      selectedBorderColor: Colors.black,
+                      children: const [
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 16.0, vertical: 8.0),
+                          child: Text(
+                            "Extreme Focus",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 16.0, vertical: 8.0),
+                          child: Text(
+                            "Low Stress",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ),
                   const SizedBox(
                       height: 30), // Reduced space between timer and buttons
+
                   // Buttons Section
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -517,47 +559,6 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
-                  // Focus Mode Toggle
-                  if (!_isRunning)
-                    ToggleButtons(
-                      isSelected: [
-                        _selectedFocusMode == FocusMode.extremeFocus,
-                        _selectedFocusMode == FocusMode.lowStress,
-                      ],
-                      onPressed: (index) {
-                        setState(() {
-                          _selectedFocusMode = index == 0
-                              ? FocusMode.extremeFocus
-                              : FocusMode.lowStress;
-                        });
-                      },
-                      borderRadius: BorderRadius.circular(10),
-                      selectedColor: Colors.white,
-                      fillColor: _currentSession == Session.work
-                          ? Colors.blue
-                          : Colors.red,
-                      color: Colors.white,
-                      selectedBorderColor: Colors.black,
-                      children: const [
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 16.0, vertical: 8.0),
-                          child: Text(
-                            "Extreme Focus",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 16.0, vertical: 8.0),
-                          child: Text(
-                            "Low Stress",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ],
-                    ),
                 ],
               ),
             ),
