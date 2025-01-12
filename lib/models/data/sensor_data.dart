@@ -3,44 +3,54 @@ import 'dart:typed_data';
 class SensorData {
   bool _isConnected = false;
   String _connectionStatus = "Disconnected";
+  static const String _defaultSensorValue = "-";
+  String get defaultSensorValue => _defaultSensorValue;
 
   int _heartRate = 0;
+  String _heartRateString = _defaultSensorValue;
+
   double _bodyTemperature = 0.0;
+  String _bodyTemperatureString = _defaultSensorValue;
 
   int _accX = 0;
+  String _accXString = _defaultSensorValue;
   int _accY = 0;
+  String _accYString = _defaultSensorValue;
   int _accZ = 0;
+  String _accZString = _defaultSensorValue;
 
   int _ppgGreen = 0;
+  String _ppgGreenString = _defaultSensorValue;
   int _ppgRed = 0;
+  String _ppgRedString = _defaultSensorValue;
   int _ppgAmbient = 0;
+  String _ppgAmbientString = _defaultSensorValue;
 
 // Getter for heart rate
   int get rawHeartRate => _heartRate; // Raw value as integer
-  String get heartRate => _heartRate != 0 ? "$_heartRate bpm" : "- bpm";
+  String get heartRate => _heartRateString;
 
 // Getter for body temperature
   double get rawBodyTemperature => _bodyTemperature; // Raw value
-  String get bodyTemperature =>
-      "${_bodyTemperature.toStringAsFixed(1)} °C"; // String with unit
+  String get bodyTemperature => _bodyTemperatureString; // String with unit
 
 // Getters for accelerometer values
   int get rawAccX => _accX;
   int get rawAccY => _accY;
   int get rawAccZ => _accZ;
 
-  String get accX => "$_accX (unknown unit)";
-  String get accY => "$_accY (unknown unit)";
-  String get accZ => "$_accZ (unknown unit)";
+  String get accX => _accXString;
+  String get accY => _accYString;
+  String get accZ => _accZString;
 
 // Getters for PPG values
   int get rawPPGGreen => _ppgGreen;
   int get rawPPGRed => _ppgRed;
   int get rawPPGAmbient => _ppgAmbient;
 
-  String get ppgGreen => "$_ppgGreen (unknown unit)";
-  String get ppgRed => "$_ppgRed (unknown unit)";
-  String get ppgAmbient => "$_ppgAmbient (unknown unit)";
+  String get ppgGreen => _ppgGreenString;
+  String get ppgRed => _ppgRedString;
+  String get ppgAmbient => _ppgAmbientString;
 
 // Getter for connection status
   String get connectionStatus => _connectionStatus;
@@ -61,6 +71,7 @@ class SensorData {
     }
 
     _heartRate = bpm;
+    _heartRateString = "$_heartRate bpm";
   }
 
   void updateBodyTemperature(rawData) {
@@ -76,6 +87,7 @@ class SensorData {
     }
 
     _bodyTemperature = temperature;
+    _bodyTemperatureString = _bodyTemperature.toStringAsFixed(1) + " °C";
   }
 
   void updatePPGRaw(rawData) {
@@ -84,6 +96,10 @@ class SensorData {
     _ppgGreen = bytes[0] | bytes[1] << 8 | bytes[2] << 16 | bytes[3] << 32;
     _ppgRed = bytes[4] | bytes[5] << 8 | bytes[6] << 16 | bytes[7] << 32;
     _ppgAmbient = bytes[8] | bytes[9] << 8 | bytes[10] << 16 | bytes[11] << 32;
+
+    _ppgGreenString = "$_ppgGreen";
+    _ppgRedString = "$_ppgRed";
+    _ppgAmbientString = "$_ppgAmbient";
   }
 
   void updateAccelerometer(rawData) {
@@ -93,6 +109,10 @@ class SensorData {
     _accX = bytes[14];
     _accY = bytes[16];
     _accZ = bytes[18];
+
+    _accXString = "$_accX";
+    _accYString = "$_accY";
+    _accZString = "$_accZ";
   }
 
   int twosComplimentOfNegativeMantissa(int mantissa) {
