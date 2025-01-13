@@ -44,10 +44,10 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   static const String _skipButtonLabel = 'Skip';
 
   // Times
-  static const int periodicFocusAndStressCalculationTime = 60;
-  static const int _breakExtensionTime = 2; // 2min
-  static const int _focusExtensionTime = 5; // 5min
-  static const int _focusReductionTime = 5; // 5min
+  static const int periodicFocusAndStressCalculationTime = 60; // seconds
+  static const int _breakExtensionTime = 1; // minutes
+  static const int _focusExtensionTime = 3; // minutes
+  static const int _focusReductionTime = _focusExtensionTime;
 
   static const double veryHighValue = 0.9;
   static const double highValue = 0.7;
@@ -261,7 +261,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
 
   void _extendBreakTime() {
     setState(() {
-      _sessionDuration += _breakExtensionTime; // Extend break by 2 minutes
+      _sessionDuration += _breakExtensionTime; // Extend break
       print("Break time extended to $_sessionDuration minutes");
     });
   }
@@ -280,10 +280,14 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
         : _shortBreakAmount;
   }
 
+  bool _shouldStopSensorCollection() {
+    return (!_isRunning || !widget.sensorData.isConnected);
+  }
+
   void _startSensorDataCollection() {
     // Timer for data collection every second
     Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (!_isRunning) {
+      if (_shouldStopSensorCollection()) {
         timer.cancel();
       } else {
         _collectSensorData(); // Collect sensor data every second
@@ -299,7 +303,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     Timer.periodic(
         const Duration(seconds: periodicFocusAndStressCalculationTime),
         (timer) {
-      if (!_isRunning) {
+      if (_shouldStopSensorCollection()) {
         timer.cancel();
       } else {
         _calculateFocusAndStress(); // Calculate focus and stress every minute
@@ -362,9 +366,6 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   void _playSound() async {
     try {
       await _audioPlayer.play(AssetSource('sounds/timer_end.mp3'));
-
-      await Future.delayed(const Duration(seconds: 1));
-
       await _audioPlayer.play(AssetSource('sounds/timer_end.mp3'));
     } catch (e) {
       debugPrint("Error playing sound: $e");

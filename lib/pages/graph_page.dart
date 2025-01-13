@@ -24,7 +24,7 @@ class GraphPage extends StatelessWidget {
           bottom: const TabBar(
             tabs: [
               Tab(icon: Icon(Icons.psychology), text: "Focus"),
-              Tab(icon: Icon(Icons.self_improvement), text: "Stress"),
+              Tab(icon: Icon(Icons.thunderstorm), text: "Stress"),
               Tab(icon: Icon(Icons.favorite), text: "Heart"),
               Tab(icon: Icon(Icons.thermostat), text: "Temp"),
             ],
@@ -64,7 +64,7 @@ class GraphPage extends StatelessWidget {
     if (data.isEmpty) {
       return Center(
         child: Text(
-            "No data available for $title.\nPlease start a Pomodoro Session."),
+            "No data available for $title.\n\nPlease connect your Cosinuss-Earable, and\nstart a Pomodoro Session."),
       );
     }
 
