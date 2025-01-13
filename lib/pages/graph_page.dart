@@ -64,7 +64,7 @@ class GraphPage extends StatelessWidget {
     if (data.isEmpty) {
       return Center(
         child: Text(
-            "No data available for $title.\nPlease start a Pomodoro Session."),
+            "No data available for $title.\n\nPlease connect your Cosinuss-Earable,\nand start a Pomodoro Session."),
       );
     }
 
