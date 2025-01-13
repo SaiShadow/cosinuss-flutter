@@ -9,18 +9,35 @@ class StressCalculator extends Calculator {
       List<SessionData> recentData, BaselineMetrics baselineMetrics) {
     if (recentData.isEmpty) return 0.0;
 
-    // Calculate deviations from baseline
     double heartRateDeviation =
         calculateHeartRateDeviation(recentData, baselineMetrics);
-
     double bodyTemperatureDeviation =
         calculateBodyTemperatureDeviation(recentData, baselineMetrics);
 
-    // Score logic: Higher deviation = higher stress
-    double heartRateScore = (heartRateDeviation > 10.0) ? 1.0 : 0.5;
-    double temperatureScore = (bodyTemperatureDeviation > 0.5) ? 1.0 : 0.5;
+    // Use accelerometer data for stress scoring
+    List<int> accData =
+        recentData.expand((data) => [data.accX, data.accY, data.accZ]).toList();
+    double movementVariance = calculateMovementVariance(accData);
 
-    // Weighted average for final score
-    return (heartRateScore * 0.7) + (temperatureScore * 0.3);
+    // Scoring: Higher deviation = higher stress
+    double hrScore = (heartRateDeviation > 10.0)
+        ? 1.0
+        : (heartRateDeviation > 5.0)
+            ? 0.7
+            : 0.3;
+    double tempScore = (bodyTemperatureDeviation > 0.5)
+        ? 1.0
+        : (bodyTemperatureDeviation > 0.2)
+            ? 0.7
+            : 0.3;
+    double movementScore = (movementVariance > 10.0)
+        ? 1.0
+        : (movementVariance > 5.0)
+            ? 0.7
+            : 0.3;
+
+    return (hrScore * 0.6) +
+        (tempScore * 0.3) +
+        (movementScore * 0.1); // Weighted
   }
 }

@@ -9,18 +9,38 @@ class FocusCalculator extends Calculator {
       List<SessionData> recentData, BaselineMetrics baselineMetrics) {
     if (recentData.isEmpty) return 0.0;
 
-    // Calculate deviations from baseline
     double heartRateDeviation =
         calculateHeartRateDeviation(recentData, baselineMetrics);
 
-    double movementDeviation = calculateMovementDeviation(
-        recentData, baselineMetrics); // Normalize by 3 axes
+    // Use accelerometer data for movement scoring
+    List<int> accData =
+        recentData.expand((data) => [data.accX, data.accY, data.accZ]).toList();
+    double movementVariance = calculateMovementVariance(accData);
 
-    // Score logic: Lower deviation = higher focus
-    double heartRateScore = (heartRateDeviation < 5.0) ? 1.0 : 0.5;
-    double movementScore = (movementDeviation < 5.0) ? 1.0 : 0.5;
+    // Calculate temperature stability
+    List<double> temperatures =
+        recentData.map((data) => data.bodyTemperature).toList();
+    double tempStability = calculateTemperatureStability(temperatures);
 
-    // Weighted average for final score
-    return (heartRateScore * 0.6) + (movementScore * 0.4);
+    // Scoring: Lower deviation = higher focus
+    double hrScore = (heartRateDeviation < 5.0)
+        ? 1.0
+        : (heartRateDeviation < 10.0)
+            ? 0.7
+            : 0.3;
+    double movementScore = (movementVariance < 5.0)
+        ? 1.0
+        : (movementVariance < 10.0)
+            ? 0.7
+            : 0.3;
+    double tempScore = (tempStability > 0.9)
+        ? 1.0
+        : (tempStability > 0.7)
+            ? 0.7
+            : 0.3;
+
+    return (hrScore * 0.5) +
+        (movementScore * 0.3) +
+        (tempScore * 0.2); // Weighted
   }
 }
