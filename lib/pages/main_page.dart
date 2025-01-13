@@ -20,19 +20,12 @@ class _MainPageState extends State<MainPage> {
   late final BLEManager _bluetoothManager;
   int _currentPageIndex = 0;
 
+  Color _pomodoroColor = Colors.deepOrange;
+
   // Shared data for the GraphPage
   List<SessionData> _sessionData = [];
   List<Map<String, dynamic>> _focusData = [];
   List<Map<String, dynamic>> _stressData = [];
-
-  // bool _isPomodoroRunning = false;
-  Color _pomodoroColor = Colors.deepOrange;
-
-  // void _updatePomodoroRunningStatus(bool isRunning) {
-  //   setState(() {
-  //     _isPomodoroRunning = isRunning;
-  //   });
-  // }
 
   void _updateNavBarColor(Color newColor) {
     setState(() {
