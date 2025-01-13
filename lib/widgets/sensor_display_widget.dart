@@ -21,7 +21,6 @@ class SensorDataWidget extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-        // color: Colors.black.withOpacity(0.1), // Subtle background
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
