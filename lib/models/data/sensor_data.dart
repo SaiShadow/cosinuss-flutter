@@ -1,11 +1,14 @@
 import 'dart:typed_data';
 
 class SensorData {
-  bool _isConnected = false;
-  String _connectionStatus = _defaultConnectionStatus;
-  static const String _defaultSensorValue = "-";
   static const String _defaultConnectionStatus = "Not Connected";
+  static const String _defaultSensorValue = "-";
+
   String get defaultSensorValue => _defaultSensorValue;
+
+  bool _isConnected = false;
+
+  String _connectionStatus = _defaultConnectionStatus;
 
   int _heartRate = 0;
   String _heartRateString = _defaultSensorValue;
@@ -29,11 +32,11 @@ class SensorData {
 
 // Getter for heart rate
   int get rawHeartRate => _heartRate; // Raw value as integer
-  String get heartRate => _heartRateString;
+  String get heartRate => _heartRateString; // String with unit
 
 // Getter for body temperature
-  double get rawBodyTemperature => _bodyTemperature; // Raw value
-  String get bodyTemperature => _bodyTemperatureString; // String with unit
+  double get rawBodyTemperature => _bodyTemperature;
+  String get bodyTemperature => _bodyTemperatureString;
 
 // Getters for accelerometer values
   int get rawAccX => _accX;
@@ -63,6 +66,10 @@ class SensorData {
   }
 
   void updateHeartRate(rawData) {
+    if (rawData == null || rawData.length < 2) {
+      print("Invalid or insufficient data for heart rate update.");
+      return; // Early exit if data is null or too short, please wait a few seconds.
+    }
     Uint8List bytes = Uint8List.fromList(rawData);
 
     // Based on GATT standard
@@ -76,6 +83,10 @@ class SensorData {
   }
 
   void updateBodyTemperature(rawData) {
+    if (rawData == null || rawData.length < 4) {
+      print("Invalid or insufficient data for body temperature update.");
+      return; // Early exit if data is null or too short, please wait a few seconds.
+    }
     int flag = rawData[0];
 
     // Based on GATT standard
@@ -92,6 +103,11 @@ class SensorData {
   }
 
   void updatePPGRaw(rawData) {
+    if (rawData == null || rawData.length < 12) {
+      print("Invalid or insufficient data for PPG update.");
+      return; // Early exit if data is null or too short, please wait a few seconds.
+    }
+
     Uint8List bytes = Uint8List.fromList(rawData);
 
     _ppgGreen = bytes[0] | bytes[1] << 8 | bytes[2] << 16 | bytes[3] << 32;
@@ -104,6 +120,11 @@ class SensorData {
   }
 
   void updateAccelerometer(rawData) {
+    if (rawData == null || rawData.length < 19) {
+      print("Invalid or insufficient data for accelerometer update.");
+      return; // Early exit if data is null or too short, please wait a few seconds.
+    }
+
     Int8List bytes = Int8List.fromList(rawData);
 
     // Description based on placing the earable into your right ear canal
