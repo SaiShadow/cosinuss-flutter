@@ -24,7 +24,7 @@ class GraphPage extends StatelessWidget {
           bottom: const TabBar(
             tabs: [
               Tab(icon: Icon(Icons.psychology), text: "Focus"),
-              Tab(icon: Icon(Icons.self_improvement), text: "Stress"),
+              Tab(icon: Icon(Icons.thunderstorm), text: "Stress"),
               Tab(icon: Icon(Icons.favorite), text: "Heart"),
               Tab(icon: Icon(Icons.thermostat), text: "Temp"),
             ],
