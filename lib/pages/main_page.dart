@@ -99,18 +99,16 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       // Show the title only when the home page is selected.
       // Conditionally include the AppBar only for the home page.
-      appBar: _currentPageIndex == 0
+      appBar: _currentPageIndex == 0 // Show the title only for the home page
           ? AppBar(
               title: Text(widget.title,
                   style: const TextStyle(
-                      // fontWeight: FontWeight.bold,
-                      fontSize: 29)), // Show the title only for the home page
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red,
+                      fontSize: 29)),
             )
           : null, // No AppBar for other pagesx
       body: IndexedStack(
