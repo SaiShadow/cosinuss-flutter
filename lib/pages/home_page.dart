@@ -19,7 +19,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // Local state to manage connection status
+  // Local state indicating if connect button has been pressed.
   bool _isConnecting = false;
 
   void _connect() {
@@ -101,11 +101,8 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          // widget.title,
           "Home Page",
-          // style: TextStyle(color: Colors.white),
         ),
-        // backgroundColor: consistentColor,
       ),
       body: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
@@ -124,7 +121,7 @@ class _HomePageState extends State<HomePage> {
                 "Connection Status",
                 widget.sensorData.connectionStatus,
                 widget.sensorData.connectionStatus,
-                Icons.bluetooth, // Add an icon for connection status
+                Icons.bluetooth,
               ),
               const Divider(),
               Text(
@@ -174,6 +171,8 @@ class _HomePageState extends State<HomePage> {
                 null,
                 Icons.directions_run_sharp,
               ),
+
+              /// PPG not needed ///
               // const Divider(),
               // Text(
               //   "PPG Data",
