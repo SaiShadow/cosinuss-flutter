@@ -64,20 +64,20 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   late final Ticker _ticker;
   late int _sessionDuration;
 
-// Stores all sensor data for the session
+  // Stores all sensor data for the session
   final List<SessionData> _sessionData = [];
   // Focus values with timestamps
   final List<Map<String, dynamic>> _focusData = [];
   // Stress values with timestamps
   final List<Map<String, dynamic>> _stressData = [];
 
-  // Store user's average baseline values
+  // To store user's average baseline values
   static const int baselineCalculationTime =
       180; // 3min, but could increase to 5min if needed
   BaselineMetrics? _baselineMetrics;
   bool _isBaselineSet = false;
 
-  // Instance-based calculators
+  // Calculators
   final StressCalculator _stressCalculator = StressCalculator();
   final FocusCalculator _focusCalculator = FocusCalculator();
 
@@ -154,7 +154,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
       saveFocusAndStressValues(focusScore, stressScore);
 
       // Log the values for debugging
-      print("Focus Score: $focusScore, Stress Score: $stressScore");
+      debugPrint("Focus Score: $focusScore, Stress Score: $stressScore");
 
       // Adjust session dynamically based on scores
       _adjustSessionDurations(focusScore, stressScore);
@@ -179,7 +179,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     setState(() {
       _currentFocusLevel = _getFocusLevel(focusScore);
       _currentStressLevel = _getStressLevel(stressScore);
-      print(
+      debugPrint(
           "UI Updated: Focus Level=$_currentFocusLevel, Stress Level=$_currentStressLevel");
     });
   }
@@ -243,7 +243,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
       _sessionDuration += _focusExtensionTime; // Extend work by 5 minutes
       _remainingTime =
           Duration(minutes: _sessionDuration); // Reset remaining time
-      print("Work time extended to $_sessionDuration minutes");
+      debugPrint("Work time extended to $_sessionDuration minutes");
     });
   }
 
@@ -254,7 +254,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
         _sessionDuration -= _focusReductionTime; // Reduce work by 5 minutes
         _remainingTime =
             Duration(minutes: _sessionDuration) - _stopwatch.elapsed;
-        print("Work time reduced to $_sessionDuration minutes");
+        debugPrint("Work time reduced to $_sessionDuration minutes");
       });
     }
   }
@@ -262,7 +262,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   void _extendBreakTime() {
     setState(() {
       _sessionDuration += _breakExtensionTime; // Extend break
-      print("Break time extended to $_sessionDuration minutes");
+      debugPrint("Break time extended to $_sessionDuration minutes");
     });
   }
 
@@ -270,7 +270,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     if (_sessionData.isNotEmpty) {
       _baselineMetrics = BaselineMetrics.fromSessionData(_sessionData);
       _isBaselineSet = true;
-      print("Initial Baseline Set: $_baselineMetrics");
+      debugPrint("Initial Baseline Set: $_baselineMetrics");
     }
   }
 
@@ -381,7 +381,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
         _baselineMetrics = _baselineMetrics!.updateWith(updatedMetrics);
       });
 
-      print("Baseline dynamically updated: $_baselineMetrics");
+      debugPrint("Baseline dynamically updated: $_baselineMetrics");
     }
   }
 

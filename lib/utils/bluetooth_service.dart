@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
 class BLEManager {
@@ -32,24 +33,24 @@ class BLEManager {
               true; // avoid multiple connects attempts to same device
 
           await flutterBlue.stopScan();
-          print("Device found: ${r.device.name}");
+          debugPrint("Device found: ${r.device.name}");
 
           BluetoothDevice device = await _connectToDevice(r.device) //
               .catchError((e) {
             // catch errors
-            print("Error when connecting to Earable: $e");
+            debugPrint("Error when connecting to Earable: $e");
           });
-          print("Connected to: ${device.name}");
+          debugPrint("Connected to: ${device.name}");
 
           await _manageServices(device) //
               .catchError((e) {
             // catch errors
-            print("Error when managing services: $e");
+            debugPrint("Error when managing services: $e");
           });
         }
       }
     }, onError: (e) {
-      print("Error when scanning for Earable: $e");
+      debugPrint("Error when scanning for Earable: $e");
     });
   }
 
@@ -72,7 +73,7 @@ class BLEManager {
         // iterate over characterstics
         switch (characteristic.uuid.toString()) {
           case "0000a001-1212-efde-1523-785feabcd123":
-            print("Starting sampling ...");
+            debugPrint("Starting sampling ...");
             await characteristic.write([
               0x32,
               0x31,

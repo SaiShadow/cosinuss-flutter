@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
+
 class SensorData {
   static const String _defaultConnectionStatus = "Not Connected";
   static const String _defaultSensorValue = "-";
@@ -67,7 +69,7 @@ class SensorData {
 
   void updateHeartRate(rawData) {
     if (rawData == null || rawData.length < 2) {
-      print("Invalid or insufficient data for heart rate update.");
+      debugPrint("Invalid or insufficient data for heart rate update.");
       return; // Early exit if data is null or too short, please wait a few seconds.
     }
     Uint8List bytes = Uint8List.fromList(rawData);
@@ -84,7 +86,7 @@ class SensorData {
 
   void updateBodyTemperature(rawData) {
     if (rawData == null || rawData.length < 4) {
-      print("Invalid or insufficient data for body temperature update.");
+      debugPrint("Invalid or insufficient data for body temperature update.");
       return; // Early exit if data is null or too short, please wait a few seconds.
     }
     int flag = rawData[0];
@@ -104,7 +106,7 @@ class SensorData {
 
   void updatePPGRaw(rawData) {
     if (rawData == null || rawData.length < 12) {
-      print("Invalid or insufficient data for PPG update.");
+      debugPrint("Invalid or insufficient data for PPG update.");
       return; // Early exit if data is null or too short, please wait a few seconds.
     }
 
@@ -121,7 +123,7 @@ class SensorData {
 
   void updateAccelerometer(rawData) {
     if (rawData == null || rawData.length < 19) {
-      print("Invalid or insufficient data for accelerometer update.");
+      debugPrint("Invalid or insufficient data for accelerometer update.");
       return; // Early exit if data is null or too short, please wait a few seconds.
     }
 
