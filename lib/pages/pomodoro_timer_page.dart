@@ -185,6 +185,13 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     widget.onSessionDataUpdate(_sessionData);
   }
 
+  /// Calculates and updates the user's focus and stress levels based on recent session data.
+  ///
+  /// - Uses the last minute of session data to compute focus and stress scores.
+  /// - Focus and stress are calculated using the respective calculators (`_focusCalculator` and `_stressCalculator`).
+  /// - Saves the calculated scores with their respective timestamps.
+  /// - Dynamically adjusts the session duration based on the calculated scores.
+  ///
   void _calculateFocusAndStress() {
     if (_baselineMetrics == null || !_isBaselineSet || _sessionData.isEmpty) {
       debugPrint("Baseline not set or insufficient data for calculations.");
@@ -216,21 +223,33 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     }
   }
 
+  /// Saves the calculated focus and stress values with timestamps.
+  ///
+  /// - Adds the focus and stress scores to their respective data lists with the current timestamp.
+  /// - Notifies the parent widget about the updated focus and stress data.
+  /// - Updates the UI to reflect the latest focus and stress levels.
+  ///
+  /// Parameters:
+  /// - [focusScore]: The calculated focus score to be saved.
+  /// - [stressScore]: The calculated stress score to be saved.
   void saveFocusAndStressValues(double focusScore, double stressScore) {
+    // Add focus score with timestamp to the focus data list.
     _focusData.add({
       "timestamp": DateTime.now().millisecondsSinceEpoch.toDouble(),
       "value": focusScore,
     });
+
+    // Add stress score with timestamp to the stress data list.
     _stressData.add({
       "timestamp": DateTime.now().millisecondsSinceEpoch.toDouble(),
       "value": stressScore,
     });
 
-    // Notify parent about updated focus and stress data
+    // Notify parent widget about the updated focus and stress data.
     widget.onFocusDataUpdate(_focusData);
     widget.onStressDataUpdate(_stressData);
 
-    // Update UI with the latest levels
+    // Update the UI to show the latest focus and stress levels.
     setState(() {
       _currentFocusLevel = _getFocusLevel(focusScore);
       _currentStressLevel = _getStressLevel(stressScore);
