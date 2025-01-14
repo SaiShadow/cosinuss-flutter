@@ -475,10 +475,10 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   /// - Initiates periodic sensor data collection.
   /// - Starts the main timer, updating the UI and navigation bar color.
   void _startTimer() {
-    if (_currentSession == Session.work) {
-      // Ensure previous data is cleared
-      _sessionData.clear();
-    }
+    // if (_currentSession == Session.work) {
+    //   // Ensure previous data is cleared
+    //   _sessionData.clear();
+    // }
 
     // Start periodic sensor data collection
     _startSensorDataCollection();
@@ -694,204 +694,202 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
         color: _getPageBackgroundColor(),
         child: Column(
           children: [
-            // Timer Section
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Timer Box
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(20.0),
-                    decoration: BoxDecoration(
-                      color: _getTimerBackgroundColor(),
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          _getTimerLabel(),
-                          style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.white.withOpacity(0.8),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          _formatDuration(_remainingTime),
-                          style: TextStyle(
-                            fontSize: 40,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white.withOpacity(0.9),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  _buildTimerBox(),
                   const SizedBox(height: 10),
-                  LinearProgressIndicator(
-                    value: _calculateProgress(),
-                    backgroundColor: Colors.grey.shade300,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      _currentSession == Session.work
-                          ? Colors.green
-                          : Colors.blue,
-                    ),
-                  ),
+                  _buildProgressIndicator(),
                   const SizedBox(height: 20),
-                  // Sensor Data Section
                   _buildSensorData(),
                   const SizedBox(height: 30),
-
-                  // Focus Mode Toggle
-                  if (!_isRunning)
-                    ToggleButtons(
-                      isSelected: [
-                        _selectedFocusMode == FocusMode.extremeFocus,
-                        _selectedFocusMode == FocusMode.lowStress,
-                      ],
-                      onPressed: (index) {
-                        setState(() {
-                          _selectedFocusMode = index == 0
-                              ? FocusMode.extremeFocus
-                              : FocusMode.lowStress;
-                        });
-                      },
-                      borderRadius: BorderRadius.circular(10),
-                      selectedColor: Colors.white,
-                      fillColor: _currentSession == Session.work
-                          ? Colors.blue
-                          : Colors.red,
-                      color: Colors.white54,
-                      selectedBorderColor: Colors.black,
-                      constraints: const BoxConstraints(
-                        minWidth: 150, // Set fixed width for equal size
-                        minHeight: 50, // Set fixed height for equal size
-                      ),
-                      children: const [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.bolt, size: 20, color: Colors.white),
-                            SizedBox(height: 4),
-                            Text(
-                              "Extreme Focus",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 12),
-                            ),
-                          ],
-                        ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.self_improvement_sharp,
-                                size: 20, color: Colors.white),
-                            SizedBox(height: 4),
-                            Text(
-                              "Low Stress",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 12),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  const SizedBox(
-                      height: 35), // Reduced space between timer and buttons
-
-                  // Buttons Section
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          if (_isRunning) {
-                            _stopTimer();
-                          } else {
-                            _startTimer();
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              _isRunning ? Colors.red : Colors.green,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          padding: _isRunning
-                              ? const EdgeInsets.symmetric(
-                                  horizontal: 25, vertical: 15)
-                              : const EdgeInsets.symmetric(
-                                  horizontal: 40, vertical: 25),
-                          elevation: 4,
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              _isRunning ? Icons.pause : Icons.play_arrow,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              _isRunning ? _stopButtonLabel : _startButtonLabel,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: _skipToNextSession,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blueGrey,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          padding: _isRunning
-                              ? const EdgeInsets.symmetric(
-                                  horizontal: 25, vertical: 15)
-                              : const EdgeInsets.symmetric(
-                                  horizontal: 40, vertical: 25),
-                          elevation: 4,
-                        ),
-                        child: const Row(
-                          children: [
-                            Icon(
-                              Icons.skip_next,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              _skipButtonLabel,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                  if (!_isRunning) _buildFocusModeToggle(),
+                  const SizedBox(height: 35),
+                  _buildActionButtons(),
                 ],
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  /// Timer UI code Widget
+  Widget _buildTimerBox() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20.0),
+      decoration: BoxDecoration(
+        color: _getTimerBackgroundColor(),
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Text(
+            _getTimerLabel(),
+            style: TextStyle(
+              fontSize: 20,
+              color: Colors.white.withOpacity(0.8),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            _formatDuration(_remainingTime),
+            style: TextStyle(
+              fontSize: 40,
+              fontWeight: FontWeight.bold,
+              color: Colors.white.withOpacity(0.9),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Progress indicator UI code Widget
+  Widget _buildProgressIndicator() {
+    return LinearProgressIndicator(
+      value: _calculateProgress(),
+      backgroundColor: Colors.grey.shade300,
+      valueColor: AlwaysStoppedAnimation<Color>(
+        _currentSession == Session.work ? Colors.green : Colors.blue,
+      ),
+    );
+  }
+
+  /// Focus Mode Toggle code: Extreme Focus and Low Stress Widgets
+  Widget _buildFocusModeToggle() {
+    return ToggleButtons(
+      isSelected: [
+        _selectedFocusMode == FocusMode.extremeFocus,
+        _selectedFocusMode == FocusMode.lowStress,
+      ],
+      onPressed: (index) {
+        setState(() {
+          _selectedFocusMode =
+              index == 0 ? FocusMode.extremeFocus : FocusMode.lowStress;
+        });
+      },
+      borderRadius: BorderRadius.circular(10),
+      selectedColor: Colors.white,
+      fillColor: _currentSession == Session.work ? Colors.blue : Colors.red,
+      color: Colors.white54,
+      selectedBorderColor: Colors.black,
+      constraints: const BoxConstraints(
+        minWidth: 150,
+        minHeight: 50,
+      ),
+      children: const [
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.bolt, size: 20, color: Colors.white),
+            SizedBox(height: 4),
+            Text(
+              "Extreme Focus",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+            ),
+          ],
+        ),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.self_improvement_sharp, size: 20, color: Colors.white),
+            SizedBox(height: 4),
+            Text(
+              "Low Stress",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// Start and Skip Buttons UI Widget
+  Widget _buildActionButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        ElevatedButton(
+          onPressed: () {
+            if (_isRunning) {
+              _stopTimer();
+            } else {
+              _startTimer();
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: _isRunning ? Colors.red : Colors.green,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            padding: _isRunning
+                ? const EdgeInsets.symmetric(horizontal: 25, vertical: 15)
+                : const EdgeInsets.symmetric(horizontal: 40, vertical: 25),
+            elevation: 4,
+          ),
+          child: Row(
+            children: [
+              Icon(
+                _isRunning ? Icons.pause : Icons.play_arrow,
+                color: Colors.white,
+                size: 24,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                _isRunning ? _stopButtonLabel : _startButtonLabel,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+        ElevatedButton(
+          onPressed: _skipToNextSession,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blueGrey,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            padding: _isRunning
+                ? const EdgeInsets.symmetric(horizontal: 25, vertical: 15)
+                : const EdgeInsets.symmetric(horizontal: 40, vertical: 25),
+            elevation: 4,
+          ),
+          child: const Row(
+            children: [
+              Icon(
+                Icons.skip_next,
+                color: Colors.white,
+                size: 24,
+              ),
+              SizedBox(width: 8),
+              Text(
+                _skipButtonLabel,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
