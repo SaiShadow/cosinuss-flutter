@@ -659,6 +659,25 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
         : _breakSessionLabel;
   }
 
+  /// Builds the UI for the Pomodoro Timer Page.
+  ///
+  /// This method defines the structure and appearance of the page, including:
+  /// - The app bar, which displays the title of the page when the timer is not running.
+  /// - The timer box, which shows the current session (work or break) and the remaining time.
+  /// - A linear progress indicator, which visualizes the elapsed time in the session.
+  /// - The sensor data section, which displays live focus, stress, heart rate, and temperature data.
+  /// - The focus mode toggle, which allows the user to select between "Extreme Focus" and "Low Stress" modes.
+  /// - The action buttons (Start/Pause and Skip), which control the timer and switch between sessions.
+  ///
+  /// The background color and other UI elements dynamically adjust based on the current session (work or break)
+  /// and whether the timer is running.
+  ///
+  /// Returns:
+  /// - A `Scaffold` widget that contains all UI elements for the Pomodoro Timer Page.
+  ///
+  /// Behavior:
+  /// - If the timer is running, the app bar is hidden, and the background switches to a dark mode theme.
+  /// - When the timer completes, it automatically switches to the next session and updates the UI.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
