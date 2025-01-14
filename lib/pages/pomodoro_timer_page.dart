@@ -12,14 +12,39 @@ import 'package:cosinuss/widgets/sensor_display_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
+/// A StatefulWidget that implements the Pomodoro Timer page.
+///
+/// This page is the core functionality of the app, handling the Pomodoro Timer,
+/// sensor data collection, dynamic session adjustments, and visualization of
+/// focus and stress levels.
+///
+/// [PomodoroTimerPage] receives sensor data and updates for session, focus, and stress
+/// values, and communicates these updates back to the parent via callback functions.
 class PomodoroTimerPage extends StatefulWidget {
+  /// The current sensor data being collected from the Cosinuss Earable.
   final SensorData sensorData;
 
+  /// Callback to send the updated session data back to the parent widget.
+  /// The session data contains heart rate, temperature, and motion data collected
+  /// during a Pomodoro session.
   final Function(List<SessionData>) onSessionDataUpdate;
+
+  /// Callback to send the updated focus data back to the parent widget.
+  /// This data represents focus scores calculated periodically during the session.
   final Function(List<Map<String, dynamic>>) onFocusDataUpdate;
+
+  /// Callback to send the updated stress data back to the parent widget.
+  /// This data represents stress scores calculated periodically during the session.
   final Function(List<Map<String, dynamic>>) onStressDataUpdate;
+
+  /// Callback to update the navigation bar color dynamically based on the current
+  /// session type (work or break) and running status.
   final Function(Color) onUpdateNavBarColor;
 
+  /// Constructs a [PomodoroTimerPage] widget.
+  ///
+  /// The widget is initialized with the required [sensorData] and callback
+  /// functions to handle updates for session, focus, stress data, and navigation bar color.
   const PomodoroTimerPage({
     Key? key,
     required this.sensorData,
