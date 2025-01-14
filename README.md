@@ -2,10 +2,10 @@
 
 Flow State is a Flutter-based productivity app that integrates with the Cosinuss Earable sensor to optimize work sessions and manage stress. The app combines real-time biometric tracking with the Pomodoro technique to create a personalized and adaptive productivity experience.
 
-Just connect your Cosinuss Earable and start the timer and put it to the side.
-The timer turns black to not distract your work.
-After the timer is done, a timer sound is played and the color changes to bright blue/red color depending on if its time for a break or work.
-And any time users can see how their session data, consisting of focus, stress, heart rate and temperature fluctuated during their sessions.
+Connect your Cosinuss Earable, start the timer, and put it to the side.
+The timer turns black so as not to distract your work.
+After the timer is done, a timer sound is played and the colour changes to bright blue/red depending on the time for a break or work.
+Any time users can see how their session data, consisting of focus, stress, heart rate and temperature fluctuated during their sessions.
 
 ---
 
@@ -22,14 +22,14 @@ The app provides a Pomodoro timer that adjusts work and break durations dynamica
 - **Work Sessions**:
   - Default duration: 25 minutes.
   - Extended if focus levels are consistently high.
-  - Shortened if user is highly stressed.
+  - Shortened if the user is highly stressed.
 - **Break Sessions**:
   - Default duration: 5 minutes.
   - Lengthened if stress remains elevated during breaks.
 
 **User Alerts:**
 - **Colors**: 
-  - **Black** background when timer is running to not disturb the user.
+  - **Black** background when the timer is running to not disturb the user.
   - Work sessions are displayed in a vibrant **red** background to emphasize focus.
   - Break sessions are displayed in a calming **blue** background to encourage relaxation.
 - **Sounds**: 
@@ -71,17 +71,17 @@ The app visualizes session data using interactive graphs:
 Users can choose between two modes:
 - **Extreme Focus Mode**:
   - Prioritizes productivity.
-  - Increases work session duration if user is still focused at the end of the work session.
+  - Increases work session duration if the user is still focused at the end of the work session.
 - **Low Stress Mode**:
   - Focuses on well-being.
-  - Reduce work session time if user is highly stressed.
+  - Reduce work session time if the user is highly stressed.
   - Extends breaks when stress levels are elevated.
 
 ---
 
 ## Visual & Auditory Feedback
 
-1. **Colors**: Alerts users about the session change when phone is put in the pheripheral view while working on tasks.
+1. **Colors**: Alerts users about the session change when the phone is put in the peripheral view while working on tasks.
    - **Red for Work**: Motivates users to concentrate. 
    - **Blue for Breaks**: Promotes relaxation.
    - **Dark Mode**: Activated during active sessions for a distraction-free environment.
