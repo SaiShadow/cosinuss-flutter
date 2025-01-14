@@ -492,6 +492,12 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     _updateNavBarColor();
   }
 
+  /// Stops the Pomodoro timer and updates the UI state.
+  ///
+  /// Behavior:
+  /// - Stops the stopwatch and ticker.
+  /// - Marks the session as not running.
+  /// - Updates the navigation bar color to reflect the stopped state.
   void _stopTimer() {
     setState(() {
       _stopwatch.stop();
@@ -501,6 +507,13 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     _updateNavBarColor();
   }
 
+  /// Skips to the next Pomodoro session.
+  ///
+  /// Behavior:
+  /// - Stops the current timer.
+  /// - Resets the stopwatch and switches between work and break sessions.
+  /// - Updates the session duration and resets the remaining time.
+  /// - Updates the navigation bar color to reflect the new session state.
   void _skipToNextSession() {
     _stopTimer();
     setState(() {
@@ -520,12 +533,23 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     _updateNavBarColor();
   }
 
+  /// Completes the current Pomodoro session.
+  ///
+  /// Behavior:
+  /// - Plays a sound to indicate the end of the session.
+  /// - Updates the user's baseline measurements dynamically at the end of the session.
+  /// - Automatically skips to the next session.
   void _completeTimer() {
     _playSound(); // Play the sound when the timer ends
     _updateUserBaselineMeasurement(); // Dynamically update baseline at the end of the session
     _skipToNextSession();
   }
 
+  /// Plays a sound to signal the end of a session.
+  ///
+  /// Behavior:
+  /// - Attempts to play a sound from the local assets when a session ends.
+  /// - Logs any errors encountered while playing the sound.
   void _playSound() async {
     try {
       await _audioPlayer.play(AssetSource('sounds/timer_end.mp3'));
@@ -535,6 +559,12 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     }
   }
 
+  /// Dynamically updates the user's baseline measurements at the end of a session.
+  ///
+  /// Behavior:
+  /// - Updates the baseline metrics using the session data collected during the session.
+  /// - Ensures that the baseline is only updated if data is available and the baseline is already set.
+  /// - Logs the updated baseline metrics for debugging purposes.
   void _updateUserBaselineMeasurement() {
     if (_sessionData.isNotEmpty && _isBaselineSet) {
       final updatedMetrics = BaselineMetrics.fromSessionData(_sessionData);
