@@ -124,7 +124,7 @@ class _MainPageState extends State<MainPage> {
                       color: Colors.red,
                       fontSize: 29)),
             )
-          : null, // No AppBar for other pagesx
+          : null, // No AppBar for other pages
       body: IndexedStack(
         index: _currentPageIndex,
         children: [
