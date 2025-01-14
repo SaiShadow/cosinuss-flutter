@@ -338,6 +338,14 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     }
   }
 
+  /// Handles adjustments to the break session duration based on the stress score.
+  ///
+  /// Parameters:
+  /// - [stressScore]: The calculated stress score.
+  ///
+  /// Behavior:
+  /// - If the focus mode is set to "Low Stress" and the stress score is high,
+  ///   extends the break session duration to help the user recover.
   void _handleBreakSessionAdjustments(double stressScore) {
     if (_selectedFocusMode == FocusMode.lowStress && //
         stressScore > highValue) {
@@ -346,6 +354,12 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     }
   }
 
+  /// Extends the duration of the current work session.
+  ///
+  /// Behavior:
+  /// - Adds the predefined extension time to the work session duration.
+  /// - Resets the remaining time to reflect the extended session duration.
+  /// - Logs the new session duration for debugging.
   void _extendWorkTime() {
     setState(() {
       _sessionDuration += _focusExtensionTime; // Extend work by 5 minutes
@@ -355,6 +369,13 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     });
   }
 
+  /// Reduces the duration of the current work session.
+  ///
+  /// Behavior:
+  /// - Reduces the work session duration by the predefined reduction time,
+  ///   ensuring it doesn't go below a minimum threshold (10 minutes).
+  /// - Adjusts the remaining time to reflect the reduced session duration.
+  /// - Logs the new session duration for debugging.
   void _reduceWorkTime() {
     if (_sessionDuration > 10) {
       // Minimum work duration threshold
@@ -367,6 +388,11 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     }
   }
 
+  /// Extends the duration of the current break session.
+  ///
+  /// Behavior:
+  /// - Adds the predefined extension time to the break session duration.
+  /// - Logs the new session duration for debugging.
   void _extendBreakTime() {
     setState(() {
       _sessionDuration += _breakExtensionTime; // Extend break
@@ -374,6 +400,11 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     });
   }
 
+  /// Calculates and sets the initial baseline metrics for focus and stress calculations.
+  ///
+  /// Behavior:
+  /// - Generates baseline metrics from the session data using the `BaselineMetrics` class.
+  /// - Sets the baseline as established and logs the metrics for debugging.
   void _calculateBaseline() {
     if (_sessionData.isNotEmpty) {
       _baselineMetrics = BaselineMetrics.fromSessionData(_sessionData);
