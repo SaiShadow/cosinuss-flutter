@@ -91,11 +91,12 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   // Tracks the current session type (work or break).
   late Session _currentSession;
 
-  bool _isRunning = false;
-  late Duration _remainingTime;
-  late final Stopwatch _stopwatch;
-  late final Ticker _ticker;
-  late int _sessionDuration;
+  // State variables for timer and session management.
+  bool _isRunning = false; // Indicates if the timer is running.
+  late Duration _remainingTime; // Remaining time for the current session.
+  late final Stopwatch _stopwatch; // Stopwatch to track elapsed time.
+  late final Ticker _ticker; // Ticker to update UI for the timer.
+  late int _sessionDuration; // Total duration of the current session.
 
   // Stores all sensor data for the session
   final List<SessionData> _sessionData = [];
