@@ -58,7 +58,12 @@ class PomodoroTimerPage extends StatefulWidget {
   State<PomodoroTimerPage> createState() => _PomodoroTimerPageState();
 }
 
+/// The state class for [PomodoroTimerPage].
+///
+/// Manages the core Pomodoro Timer functionality, sensor data collection,
+/// session adjustments, focus/stress calculations, and user interaction.
 class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
+  // Constants representing default durations and labels for sessions.
   static const int _pomodoroTimerAmount = 25;
   static const int _shortBreakAmount = 5;
   static const String _workSessionLabel = 'Work Session';
@@ -68,19 +73,22 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   static const String _stopButtonLabel = 'Pause';
   static const String _skipButtonLabel = 'Skip';
 
-  // Times
+  // Timing constants for session adjustments.
   static const int periodicFocusAndStressCalculationTime = 60; // seconds
   static const int _breakExtensionTime = 1; // minutes
   static const int _focusExtensionTime = 3; // minutes
   static const int _focusReductionTime = _focusExtensionTime;
 
+  // Threshold values for focus and stress levels.
   static const double veryHighValue = 0.9;
   static const double highValue = 0.7;
   static const double mediumValue = 0.4;
 
+  // Variables for UI display of current focus and stress levels.
   String _currentFocusLevel = "Calculating...";
   String _currentStressLevel = "Calculating...";
 
+  // Tracks the current session type (work or break).
   late Session _currentSession;
 
   bool _isRunning = false;
@@ -106,9 +114,10 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   final StressCalculator _stressCalculator = StressCalculator();
   final FocusCalculator _focusCalculator = FocusCalculator();
 
-  // Sound for when session ends
+  // Audio player to play sound when the session ends ie. when timer goes to zero.
   late final AudioPlayer _audioPlayer;
 
+  // User's selected focus mode (e.g., Extreme Focus or Low Stress).
   late FocusMode _selectedFocusMode;
 
   @override
