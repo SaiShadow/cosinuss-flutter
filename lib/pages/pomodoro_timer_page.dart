@@ -413,16 +413,34 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     }
   }
 
+  /// Retrieves the duration of the current session in minutes.
+  ///
+  /// Returns:
+  /// - The duration of the session in minutes. Returns the work session duration
+  ///   if the current session is a work session, or the short break duration otherwise.
   int _getSessionDuration() {
     return _currentSession == Session.work
         ? _pomodoroTimerAmount
         : _shortBreakAmount;
   }
 
+  /// Determines whether sensor data collection should stop.
+  ///
+  /// Returns:
+  /// - `true` if the session is not running or the sensor device is not connected.
+  /// - `false` otherwise.
   bool _shouldStopSensorCollection() {
     return (!_isRunning || !widget.sensorData.isConnected);
   }
 
+  /// Starts the periodic collection of sensor data and focus/stress calculations.
+  ///
+  /// Behavior:
+  /// - Starts a timer to collect sensor data every second.
+  /// - Starts another timer to calculate focus and stress every minute.
+  /// - Cancels the timers if the session is no longer running or the sensor device
+  ///   is disconnected.
+  /// - Calculates the baseline metrics if sufficient data has been collected.
   void _startSensorDataCollection() {
     // Timer for data collection every second
     Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -450,6 +468,12 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     });
   }
 
+  /// Starts the Pomodoro timer for the current session.
+  ///
+  /// Behavior:
+  /// - Clears the session data if the current session is a work session.
+  /// - Initiates periodic sensor data collection.
+  /// - Starts the main timer, updating the UI and navigation bar color.
   void _startTimer() {
     if (_currentSession == Session.work) {
       // Ensure previous data is cleared
