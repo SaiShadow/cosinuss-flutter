@@ -578,6 +578,11 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     }
   }
 
+  /// Cleans up resources used by the `PomodoroTimerPage` state.
+  ///
+  /// Behavior:
+  /// - Disposes the audio player and ticker when the widget is removed from the widget tree.
+  /// - Calls the superclass's `dispose` method.
   @override
   void dispose() {
     _audioPlayer.dispose();
@@ -585,16 +590,33 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     super.dispose();
   }
 
+  /// Formats a `Duration` into a string with the format `MM:SS`.
+  ///
+  /// Parameters:
+  /// - [duration]: The duration to be formatted.
+  ///
+  /// Returns:
+  /// - A string representing the duration in minutes and seconds.
   String _formatDuration(Duration duration) {
     final minutes = duration.inMinutes.toString().padLeft(2, '0');
     final seconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
     return '$minutes:$seconds';
   }
 
+  /// Updates the navigation bar color to match the current page background color.
+  ///
+  /// Behavior:
+  /// - Calls the `onUpdateNavBarColor` function provided by the parent widget.
   void _updateNavBarColor() {
     widget.onUpdateNavBarColor(_getPageBackgroundColor());
   }
 
+  /// Determines the background color of the page based on the current state.
+  ///
+  /// Returns:
+  /// - `Colors.black` if the timer is running.
+  /// - `Colors.deepOrange` for a work session when the timer is not running.
+  /// - `Colors.blue` for a break session when the timer is not running.
   Color _getPageBackgroundColor() {
     if (_isRunning) {
       return _getRunningBackgroundColor(); // Dark mode when running
@@ -602,10 +624,20 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     return _currentSession == Session.work ? Colors.deepOrange : Colors.blue;
   }
 
+  /// Returns the background color for the page when the timer is running.
+  ///
+  /// Returns:
+  /// - `Colors.black` for a dark mode effect during an active timer.
   Color _getRunningBackgroundColor() {
     return Colors.black; // Dark mode when running
   }
 
+  /// Determines the background color of the timer box based on the current state.
+  ///
+  /// Returns:
+  /// - `Colors.black` for dark mode when the timer is running.
+  /// - `Colors.deepOrange.shade400` for a work session when the timer is not running.
+  /// - `Colors.lightBlue` for a break session when the timer is not running.
   Color _getTimerBackgroundColor() {
     if (_isRunning) {
       return _getRunningBackgroundColor(); // Dark mode when running
@@ -616,6 +648,11 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
         : Colors.lightBlue;
   }
 
+  /// Retrieves the label for the timer based on the current session.
+  ///
+  /// Returns:
+  /// - `Work Session` if the current session is a work session.
+  /// - `Break Time` if the current session is a break session.
   String _getTimerLabel() {
     return _currentSession == Session.work
         ? _workSessionLabel
@@ -839,6 +876,15 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     );
   }
 
+  /// Builds the widget displaying sensor data, including focus level, stress level,
+  /// heart rate, and body temperature.
+  ///
+  /// Returns:
+  /// - A `SensorDataWidget` that displays the current sensor data values.
+  ///
+  /// Behavior:
+  /// - Uses the `_currentFocusLevel` and `_currentStressLevel` strings for focus and stress levels.
+  /// - Converts the `heartRate` and `bodyTemperature` from the `SensorData` object to strings for display.
   Widget _buildSensorData() {
     return SensorDataWidget(
       focusLevel: _currentFocusLevel,
