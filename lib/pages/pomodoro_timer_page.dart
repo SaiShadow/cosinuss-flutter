@@ -258,6 +258,13 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     });
   }
 
+  /// Determines the focus level description based on the focus score.
+  ///
+  /// Parameters:
+  /// - [focusScore]: The calculated focus score.
+  ///
+  /// Returns:
+  /// A string representing the focus level: "Very High", "High", "Moderate", or "Low".
   String _getFocusLevel(double focusScore) {
     if (focusScore >= veryHighValue) {
       return "Very High";
@@ -270,6 +277,13 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     }
   }
 
+  /// Determines the stress level description based on the stress score.
+  ///
+  /// Parameters:
+  /// - [stressScore]: The calculated stress score.
+  ///
+  /// Returns:
+  /// A string representing the stress level: "Very High", "High", "Moderate", or "Low".
   String _getStressLevel(double stressScore) {
     if (stressScore >= veryHighValue) {
       return "Very High";
@@ -282,6 +296,15 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     }
   }
 
+  /// Adjusts the session duration dynamically based on focus and stress scores.
+  ///
+  /// Parameters:
+  /// - [focusScore]: The calculated focus score.
+  /// - [stressScore]: The calculated stress score.
+  ///
+  /// Behavior:
+  /// - If the current session is a work session, adjusts the work session duration.
+  /// - If the current session is a break session, adjusts the break session duration.
   void _adjustSessionDurations(double focusScore, double stressScore) {
     if (_currentSession == Session.work) {
       _handleWorkSessionAdjustments(focusScore, stressScore);
@@ -290,6 +313,17 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     }
   }
 
+  /// Handles adjustments to the work session duration based on focus and stress scores.
+  ///
+  /// Parameters:
+  /// - [focusScore]: The calculated focus score.
+  /// - [stressScore]: The calculated stress score.
+  ///
+  /// Behavior:
+  /// - If the focus mode is "Low Stress" and the stress score is very high,
+  ///   reduces the work session duration.
+  /// - If the remaining work session time is less than or equal to 1 minute
+  ///   and the focus score is high, extends the work session duration.
   void _handleWorkSessionAdjustments(double focusScore, double stressScore) {
     if (_selectedFocusMode == FocusMode.lowStress) {
       if (stressScore > veryHighValue) {
