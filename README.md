@@ -7,6 +7,8 @@ Flow State is a Flutter-based productivity app that integrates with the Cosinuss
 - After the timer is done, a timer sound is played and the colour changes to bright blue/red depending on the time for a break or work.
 - Any time users can see how their session data, consisting of focus, stress, heart rate and temperature fluctuated during their sessions.
 
+Link to GitHub Repo: [FlowState](https://github.com/SaiShadow/cosinuss-flutter)
+
 ---
 
 ## Additional Information
