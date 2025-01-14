@@ -2,11 +2,26 @@ import 'package:cosinuss/models/data/session_data.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
+/// A `GraphPage` widget that displays various graphs for focus, stress, heart rate,
+/// and body temperature based on session and sensor data.
+///
+/// This page uses a tab-based layout to switch between graphs and visualizes the
+/// data using the `fl_chart` library.
 class GraphPage extends StatelessWidget {
+  /// The session data containing timestamp, heart rate, body temperature, and accelerometer values.
   final List<SessionData> sessionData;
+
+  /// A list of focus data containing timestamp-value pairs.
   final List<Map<String, dynamic>> focusData;
+
+  /// A list of stress data containing timestamp-value pairs.
   final List<Map<String, dynamic>> stressData;
 
+  /// Creates a `GraphPage` widget.
+  ///
+  /// [sessionData] contains session-related data for graphing heart rate and temperature.
+  /// [focusData] contains focus scores for graphing.
+  /// [stressData] contains stress scores for graphing.
   const GraphPage({
     Key? key,
     required this.sessionData,
@@ -17,7 +32,7 @@ class GraphPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 4, // Add one more tab for temperature
+      length: 4, // Four tabs for focus, stress, heart, and temperature graphs
       child: Scaffold(
         appBar: AppBar(
           title: const Text("Graphs"),
@@ -60,11 +75,17 @@ class GraphPage extends StatelessWidget {
     );
   }
 
+  /// Builds a graph widget for the given data and title.
+  ///
+  /// [data] is a list of timestamp-value pairs used to plot the graph.
+  /// [title] is the title of the graph to be displayed.
   Widget _buildGraph(List<Map<String, dynamic>> data, String title) {
     if (data.isEmpty) {
       return Center(
         child: Text(
-            "No data available for $title.\n\nPlease connect your Cosinuss-Earable, and\nstart a Pomodoro Session."),
+          "No data available for $title.\n\n"
+          "Please connect your Cosinuss-Earable, and\nstart a Pomodoro Session.",
+        ),
       );
     }
 
@@ -86,7 +107,7 @@ class GraphPage extends StatelessWidget {
                   final DateTime timestamp =
                       DateTime.fromMillisecondsSinceEpoch(value.toInt());
                   return Padding(
-                    padding: const EdgeInsets.only(top: 8.0), // Add spacing
+                    padding: const EdgeInsets.only(top: 8.0),
                     child: Text(
                       "${timestamp.hour}:${timestamp.minute.toString().padLeft(2, '0')}",
                       style: const TextStyle(fontSize: 10),
@@ -101,7 +122,7 @@ class GraphPage extends StatelessWidget {
                 reservedSize: 40,
                 getTitlesWidget: (value, meta) {
                   return Padding(
-                    padding: const EdgeInsets.only(right: 8.0), // Add spacing
+                    padding: const EdgeInsets.only(right: 8.0),
                     child: Text(
                       value.toStringAsFixed(1),
                       style: const TextStyle(fontSize: 10),

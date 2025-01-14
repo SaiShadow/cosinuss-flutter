@@ -2,11 +2,26 @@ import 'package:cosinuss/models/data/sensor_data.dart';
 import 'package:cosinuss/utils/bluetooth_service.dart';
 import 'package:flutter/material.dart';
 
+/// A `HomePage` widget that provides the main interface for displaying
+/// the status of the connected Cosinuss device, including vital signs,
+/// motion data, and connection status.
 class HomePage extends StatefulWidget {
+  /// The title of the home page.
   final String title;
+
+  /// An instance of `SensorData` that provides real-time sensor data
+  /// from the connected Cosinuss device.
   final SensorData sensorData;
+
+  /// An instance of `BLEManager` responsible for managing Bluetooth
+  /// connectivity and device interactions.
   final BLEManager bluetoothManager;
 
+  /// Creates a `HomePage` widget.
+  ///
+  /// [title] represents the page title.
+  /// [sensorData] provides access to sensor data.
+  /// [bluetoothManager] manages Bluetooth connections and services.
   const HomePage({
     Key? key,
     required this.sensorData,
@@ -19,9 +34,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // Local state indicating if connect button has been pressed.
+  /// Local state indicating whether the connection process is active.
   bool _isConnecting = false;
 
+  /// Initiates the connection process to the Cosinuss device.
   void _connect() {
     setState(() {
       _isConnecting = true;
@@ -30,6 +46,14 @@ class _HomePageState extends State<HomePage> {
     widget.bluetoothManager.connect();
   }
 
+  /// Builds a sensor status row to display connection, vital sign, or motion data.
+  ///
+  /// [label] represents the label of the data being displayed.
+  /// [value] is the value of the sensor data.
+  /// [status] (optional) is the current status of the sensor or connection.
+  /// [icon] (optional) is the icon to be displayed next to the label.
+  ///
+  /// Returns a styled `Row` widget containing the sensor information.
   Widget _buildSensorStatusRow(String label, String value,
       [String? status, IconData? icon]) {
     bool isValid = value != widget.sensorData.defaultSensorValue &&
@@ -91,6 +115,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  /// Retrieves a consistent color used throughout the page for styling.
+  ///
+  /// Returns a light blue color.
   Color getConsistentColor() {
     return Colors.lightBlue;
   }
@@ -224,8 +251,18 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  /// Instructions displayed in the "Notes & Instructions" section.
   static const String infoText =
       "- Insert the earbud in your ear to receive heart rate values.\n"
-      "- It takes about 3-5min for the app to calculate your own personal baseline metrics for a unique focus and stress calculation based on your personal qualities.\n"
-      "- So please be patient for the first 5min of the Pomodoro Session start";
+      "- Ensure the device is properly connected via Bluetooth before starting a Pomodoro Session.\n"
+      "- It takes about 3-5 minutes for the app to calculate your own personal baseline metrics. These metrics are used to calculate unique focus and stress levels tailored to your personal qualities.\n"
+      "- Be patient during the initial baseline calibration period.\n"
+      "- Focus levels are calculated based on stable heart rate, minimal movement, and consistent body temperature.\n"
+      "- Stress levels are calculated based on deviations in heart rate, body temperature, and excessive movement.\n"
+      "- During a Pomodoro session:\n"
+      "   - The app uses colors and sounds to alert you about transitions between work and break periods.\n"
+      "   - Green indicates work periods, while blue indicates break periods.\n"
+      "   - A sound notification will be played at the end of each session to indicate the transition.\n"
+      "- You can view your session's focus and stress metrics in the Graphs tab, which provides detailed visualizations.\n"
+      "- Make sure to take regular breaks to optimize productivity and reduce stress.\n";
 }
