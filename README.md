@@ -1,11 +1,11 @@
 # Flow State App
 
-Flow State is a Flutter-based productivity app that integrates with the Cosinuss Earable sensor to optimize work sessions and manage stress. The app combines real-time biometric tracking with the Pomodoro technique to create a personalized and adaptive productivity experience.
+Flow State is a Flutter-based productivity app that integrates with the Cosinuss Earable sensor to optimize work sessions and manage stress based on the user's unique study habits by dynamically adjusting the length of the work and break session by the user's focus and stress. The app combines real-time biometric tracking with the Pomodoro technique to create a personalized and adaptive productivity experience.
 
-Connect your Cosinuss Earable, start the timer, and put it to the side.
-The timer turns black so as not to distract your work.
-After the timer is done, a timer sound is played and the colour changes to bright blue/red depending on the time for a break or work.
-Any time users can see how their session data, consisting of focus, stress, heart rate and temperature fluctuated during their sessions.
+- Connect your Cosinuss Earable, start the timer, and put it to the side.
+- The timer turns black so as not to distract your work.
+- After the timer is done, a timer sound is played and the colour changes to bright blue/red depending on the time for a break or work.
+- Any time users can see how their session data, consisting of focus, stress, heart rate and temperature fluctuated during their sessions.
 
 ---
 
