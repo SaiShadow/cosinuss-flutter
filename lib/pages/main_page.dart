@@ -6,10 +6,13 @@ import 'package:cosinuss/pages/graph_page.dart';
 import 'package:cosinuss/utils/bluetooth_service.dart';
 import 'package:flutter/material.dart';
 
+/// The `MainPage` widget serves as the primary entry point for the application,
+/// providing navigation between the Home, Pomodoro Timer, and Graph pages.
 class MainPage extends StatefulWidget {
-  const MainPage({Key? key, required this.title}) : super(key: key);
-
+  /// The title displayed in the AppBar.
   final String title;
+
+  const MainPage({Key? key, required this.title}) : super(key: key);
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -20,6 +23,7 @@ class _MainPageState extends State<MainPage> {
   late final BLEManager _bluetoothManager;
   int _currentPageIndex = 0;
 
+  /// The current color of the Pomodoro Timer Page's navigation bar.
   Color _pomodoroColor = Colors.deepOrange;
 
   // Shared data for the GraphPage
@@ -27,6 +31,7 @@ class _MainPageState extends State<MainPage> {
   List<Map<String, dynamic>> _focusData = [];
   List<Map<String, dynamic>> _stressData = [];
 
+  /// Updates the navigation bar color dynamically based on the Pomodoro Timer Page's state.
   void _updateNavBarColor(Color newColor) {
     setState(() {
       _pomodoroColor = newColor;
@@ -39,24 +44,28 @@ class _MainPageState extends State<MainPage> {
     _bluetoothManager = _initializeBluetoothManager();
   }
 
+  /// Updates the session data shared with the Graph Page.
   void _updateSessionData(List<SessionData> sessionData) {
     setState(() {
       _sessionData = sessionData;
     });
   }
 
+  /// Updates the focus data shared with the Graph Page.
   void _updateFocusData(List<Map<String, dynamic>> focusData) {
     setState(() {
       _focusData = focusData;
     });
   }
 
+  /// Updates the stress data shared with the Graph Page.
   void _updateStressData(List<Map<String, dynamic>> stressData) {
     setState(() {
       _stressData = stressData;
     });
   }
 
+  /// Initializes the Bluetooth Manager with callbacks for updating sensor data.
   BLEManager _initializeBluetoothManager() {
     return BLEManager(
       updateConnectionStatus: _onConnectionStatusUpdated,
@@ -67,30 +76,35 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
+  /// Updates the connection status in the `SensorData` model.
   void _onConnectionStatusUpdated(bool status) {
     setState(() {
       _sensorData.updateConnectionStatus(status);
     });
   }
 
+  /// Updates the heart rate in the `SensorData` model.
   void _onHeartRateUpdated(dynamic data) {
     setState(() {
       _sensorData.updateHeartRate(data);
     });
   }
 
+  /// Updates the body temperature in the `SensorData` model.
   void _onBodyTemperatureUpdated(dynamic data) {
     setState(() {
       _sensorData.updateBodyTemperature(data);
     });
   }
 
+  /// Updates the PPG raw data in the `SensorData` model.
   void _onPPGDataUpdated(dynamic data) {
     setState(() {
       _sensorData.updatePPGRaw(data);
     });
   }
 
+  /// Updates the accelerometer data in the `SensorData` model.
   void _onAccelerometerUpdated(dynamic data) {
     setState(() {
       _sensorData.updateAccelerometer(data);
