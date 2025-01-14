@@ -121,6 +121,14 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   // User's selected focus mode (e.g., Extreme Focus or Low Stress).
   late FocusMode _selectedFocusMode;
 
+  /// Initializes the state of the Pomodoro Timer page.
+  ///
+  /// - Sets the default focus mode to `FocusMode.extremeFocus`.
+  /// - Initializes the audio player for session-end sound notifications.
+  /// - Sets the initial session to `Session.work`.
+  /// - Calculates the initial session duration and remaining time.
+  /// - Prepares a `Stopwatch` for tracking elapsed time.
+  /// - Configures a `Ticker` to periodically update the UI and check if the timer has completed.
   @override
   void initState() {
     super.initState();
@@ -132,6 +140,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     _remainingTime = Duration(minutes: _sessionDuration);
     _stopwatch = Stopwatch();
 
+    // Configure a ticker to update the UI periodically.
     _ticker = Ticker((Duration elapsed) {
       if (_stopwatch.isRunning) {
         setState(() {
@@ -146,13 +155,24 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     });
   }
 
+  /// Calculates the progress of the current session as a fraction.
+  ///
+  /// - The progress is represented as a value between `0.0` and `1.0`.
+  /// - `0.0` indicates the session has just started, while `1.0` indicates the session has completed.
+  ///
+  /// Returns:
+  /// - A `double` representing the session progress.
   double _calculateProgress() {
     final totalSeconds = _sessionDuration * 60;
     final elapsedSeconds = totalSeconds - _remainingTime.inSeconds;
     return elapsedSeconds / totalSeconds;
   }
 
-  // Append current sensor readings to _sessionData
+  /// Collects current sensor data and appends it to the session data.
+  ///
+  /// - Reads the latest sensor data using the `SensorData` model.
+  /// - Appends the data to the `_sessionData` list for tracking.
+  /// - Notifies the parent widget about the updated session data via `onSessionDataUpdate`.
   void _collectSensorData() {
     // Collect sensor data
     final sessionData =
@@ -161,7 +181,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
       _sessionData.add(sessionData);
     });
 
-    // Notify parent about updated session data
+    // Notify parent widget about updated session data.
     widget.onSessionDataUpdate(_sessionData);
   }
 
