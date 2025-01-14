@@ -11,9 +11,18 @@ class SessionData {
 
   /// The body temperature value (in °C) at the time of collection.
   final double bodyTemperature;
+
   /// The accelerometer X,Y,Z-axis value at the time of collection.
   final int accX, accY, accZ;
 
+  /// Creates a new instance of `SessionData`.
+  ///
+  /// [timestamp]: The time when the data was collected.
+  /// [heartRate]: The heart rate value (in bpm).
+  /// [bodyTemperature]: The body temperature value (in °C).
+  /// [accX]: The accelerometer X-axis value.
+  /// [accY]: The accelerometer Y-axis value.
+  /// [accZ]: The accelerometer Z-axis value.
   SessionData({
     required this.timestamp,
     required this.heartRate,
